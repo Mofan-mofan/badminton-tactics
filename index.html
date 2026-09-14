@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e1116">
+<title>羽毛球单打战术助手</title>
+<style>
+/* ==========================================================================
+   羽毛球单打战术助手 · 界面样式
+   手机优先、深色、球场边可读。单列布局，最大宽度 720px 后居中。
+   ========================================================================== */
+
+:root {
+  --bg: #0e1116;
+  --panel: #171b23;
+  --panel2: #1e232d;
+  --line: #2a303c;
+  --line-soft: #222833;
+  --txt: #e8ebf1;
+  --txt2: #a3adbf;
+  --txt3: #6f7a8d;
+  --accent: #4f9cf9;
+  --accent-dim: #2c5f9e;
+  --warn: #f5a623;
+  --good: #3ddc84;
+  --bad: #ff6b6b;
+  --court: #14333d;
+  --court-line: #7fd4e8;
+  --r: 12px;
+  --r-sm: 8px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--txt);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  font-size: 15px; line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app { max-width: 720px; margin: 0 auto; padding: 0 12px 56px; }
+
+/* ---------------------------------------------------------------- 头部 */
+header.top {
+  position: sticky; top: 0; z-index: 30;
+  background: linear-gradient(180deg, var(--bg) 72%, rgba(14,17,22,0));
+  padding: 14px 0 10px; margin-bottom: 4px;
+}
+header.top h1 { font-size: 18px; margin: 0; letter-spacing: .3px; font-weight: 650; }
+header.top .sub { font-size: 12px; color: var(--txt3); margin-top: 2px; }
+.badge {
+  display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px;
+  border: 1px solid var(--line); color: var(--txt2); margin-left: 6px; vertical-align: 1px;
+}
+
+/* ---------------------------------------------------------------- 面板 */
+section.card {
+  background: var(--panel); border: 1px solid var(--line-soft);
+  border-radius: var(--r); padding: 13px; margin: 10px 0;
+}
+section.card > h2 {
+  font-size: 13px; margin: 0 0 10px; color: var(--txt2);
+  font-weight: 600; letter-spacing: .6px; text-transform: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+section.card > h2 .hint { font-size: 11px; color: var(--txt3); font-weight: 400; letter-spacing: 0; }
+
+/* 折叠区 */
+details.fold { border-top: 1px solid var(--line-soft); margin-top: 10px; padding-top: 8px; }
+details.fold > summary {
+  cursor: pointer; font-size: 12.5px; color: var(--txt2); list-style: none;
+  display: flex; align-items: center; gap: 6px; user-select: none;
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: '▸'; font-size: 10px; color: var(--txt3); transition: transform .15s; }
+details.fold[open] > summary::before { transform: rotate(90deg); }
+details.fold > .fold-body { padding-top: 9px; }
+
+/* ---------------------------------------------------------------- 表单控件 */
+select, input[type=text], input[type=number], textarea, button {
+  font-family: inherit; font-size: 14px; color: var(--txt);
+}
+select, input[type=text], input[type=number], textarea {
+  background: var(--panel2); border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: 8px 10px; width: 100%;
+}
+select:focus, input:focus, textarea:focus { outline: none; border-color: var(--accent-dim); }
+textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
+
+button {
+  background: var(--panel2); border: 1px solid var(--line); color: var(--txt);
+  border-radius: var(--r-sm); padding: 8px 13px; cursor: pointer; font-size: 13.5px;
+}
+button:active { transform: translateY(1px); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #08131f; font-weight: 600; }
+button.ghost { background: transparent; }
+button.danger { color: var(--bad); border-color: #4a2b30; }
+button.mini { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row button { flex: 0 0 auto; }
+
+/* 芯片式单选 */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 6px 11px; border-radius: 99px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel2); color: var(--txt2);
+  user-select: none; white-space: nowrap;
+}
+.chip.on { background: var(--accent); border-color: var(--accent); color: #08131f; font-weight: 600; }
+.chip.on.warn { background: var(--warn); border-color: var(--warn); }
+.chip small { opacity: .72; font-size: 11px; }
+
+.field { margin-bottom: 11px; }
+.field:last-child { margin-bottom: 0; }
+.field > label { display: block; font-size: 12px; color: var(--txt2); margin-bottom: 5px; }
+.field .desc { font-size: 11.5px; color: var(--txt3); margin-top: 4px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* 滑条 */
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 26px;
+  background: transparent; margin: 0;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 5px; border-radius: 3px; background: var(--line);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg); margin-top: -7.5px; cursor: pointer;
+}
+input[type=range].opp::-webkit-slider-thumb { background: var(--bad); }
+.stam-row { display: flex; align-items: center; gap: 10px; }
+.stam-row .who { font-size: 12.5px; color: var(--txt2); width: 44px; flex: 0 0 auto; }
+.stam-row input[type=range] { flex: 1 1 auto; }
+.stam-row .val {
+  font-variant-numeric: tabular-nums; font-size: 13px; width: 46px;
+  text-align: right; flex: 0 0 auto; font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- 球场 */
+.court-wrap { position: relative; }
+svg.court {
+  width: 100%; height: auto; display: block; touch-action: none; border-radius: var(--r-sm);
+  /* 锁定 viewBox 比例，避免容器宽度异常时高度塌缩或失控 */
+  aspect-ratio: 360 / 159;
+}
+.court .surf { fill: var(--court); }
+.court .ln { stroke: var(--court-line); stroke-width: 1.4; fill: none; opacity: .85; }
+.court .ln-thin { stroke: var(--court-line); stroke-width: .9; fill: none; opacity: .38; }
+.court .net { stroke: #e8ebf1; stroke-width: 2.6; opacity: .9; }
+.court .zlbl { fill: var(--court-line); font-size: 7.5px; opacity: .42; text-anchor: middle; pointer-events: none; }
+.court .side-lbl { fill: #cfe6ee; font-size: 9px; opacity: .62; text-anchor: middle; pointer-events: none; }
+.court .zone-hit { fill: transparent; cursor: pointer; }
+.court .zone-hit.active-side:hover { fill: rgba(79,156,249,.10); }
+.court .weak { fill: var(--good); opacity: .20; pointer-events: none; }
+.court .strong { fill: var(--bad); opacity: .20; pointer-events: none; }
+.court .target { fill: var(--accent); opacity: .34; pointer-events: none; }
+.court .target-best { fill: var(--good); opacity: .42; pointer-events: none; }
+.court .path { stroke: var(--accent); stroke-width: 1.8; fill: none; opacity: .8; stroke-dasharray: 4 3; }
+.court .path-opp { stroke: var(--bad); stroke-width: 1.4; fill: none; opacity: .55; stroke-dasharray: 3 3; }
+.court .mk { stroke: var(--bg); stroke-width: 1.6; cursor: grab; }
+.court .mk.dragging { cursor: grabbing; }
+.court .mk-me { fill: var(--accent); }
+.court .mk-ball { fill: var(--warn); }
+.court .mk-opp { fill: var(--bad); }
+.court .mk-rec { fill: none; stroke: #9fd0ff; stroke-width: 1.6; stroke-dasharray: 2.5 2; }
+.court .mk-lbl { font-size: 8.5px; fill: var(--txt); text-anchor: middle; pointer-events: none; font-weight: 600; }
+.court .mk.active { stroke: #fff; stroke-width: 2.2; }
+/* 对手舒适触及圈：难度 0.5 的等值线，圈内是他原地伸手或一步就能够到的落点 */
+.court .cover { fill: rgba(255,107,107,.07); stroke: var(--bad); stroke-width: 1;
+  stroke-dasharray: 3 2.5; opacity: .85; pointer-events: none; }
+.court .cover-lbl { fill: var(--bad); font-size: 6.8px; opacity: .85; text-anchor: middle; pointer-events: none; }
+.court .mk-ghost { fill: none; stroke: var(--txt3); stroke-width: 1; stroke-dasharray: 1.5 1.5; pointer-events: none; }
+
+.marker-legend { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+.marker-legend .chip { flex: 1 1 160px; text-align: center; font-size: 12.5px; padding: 7px 6px; }
+.marker-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+
+/* ---------------------------------------------------------------- 结果卡片 */
+.rec {
+  border: 1px solid var(--line-soft); border-radius: var(--r);
+  background: var(--panel2); padding: 11px; margin-bottom: 9px;
+}
+.rec.best { border-color: #2f5d43; background: linear-gradient(180deg, #1a2620, var(--panel2) 62%); }
+.rec-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rec-rank {
+  font-size: 11px; color: var(--txt3); font-variant-numeric: tabular-nums;
+  border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; flex: 0 0 auto;
+}
+.rec-name { font-size: 16px; font-weight: 650; letter-spacing: .2px; }
+.rec-target { font-size: 12.5px; color: var(--accent); }
+.rec-score { margin-left: auto; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rec-score small { font-size: 11px; color: var(--txt3); font-weight: 400; margin-left: 2px; }
+.bar { height: 4px; border-radius: 2px; background: var(--line); margin: 8px 0 9px; overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+.rec.best .bar > i { background: var(--good); }
+
+.rec-body { display: flex; gap: 11px; align-items: flex-start; }
+.rec-body .mini { flex: 0 0 132px; }
+.rec-body .txt { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 480px) {
+  .rec-body { flex-direction: column; }
+  .rec-body .mini { flex: 0 0 auto; width: 100%; max-width: 260px; }
+}
+ul.reasons { margin: 0; padding-left: 0; list-style: none; }
+ul.reasons li {
+  font-size: 12.8px; color: var(--txt2); padding: 3px 0 3px 15px; position: relative; line-height: 1.5;
+}
+ul.reasons li::before { position: absolute; left: 0; top: 3px; font-size: 11px; }
+ul.reasons li.pro::before { content: '+'; color: var(--good); font-weight: 700; }
+ul.reasons li.con::before { content: '−'; color: var(--bad); font-weight: 700; }
+.reply {
+  font-size: 12.5px; color: var(--txt2); background: rgba(245,166,35,.09);
+  border-left: 2px solid var(--warn); padding: 6px 9px; border-radius: 0 6px 6px 0; margin-top: 8px;
+}
+.reply b { color: var(--warn); font-weight: 600; }
+.metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--txt3); }
+.metrics span b { color: var(--txt2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.alts { margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.alts .lbl { font-size: 11.5px; color: var(--txt3); }
+.alt {
+  font-size: 11.5px; padding: 2px 8px; border-radius: 99px; cursor: pointer;
+  border: 1px solid var(--line); color: var(--txt2); background: transparent;
+}
+.alt.on { border-color: var(--accent); color: var(--accent); }
+
+table.brk { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+table.brk th, table.brk td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--line-soft); }
+table.brk th { color: var(--txt3); font-weight: 500; font-size: 11px; }
+table.brk td:first-child, table.brk th:first-child { text-align: left; }
+table.brk td.pos { color: var(--good); }
+table.brk td.neg { color: var(--bad); }
+table.brk td.num { font-variant-numeric: tabular-nums; color: var(--txt2); }
+table.brk tr.total td { border-top: 1px solid var(--line); border-bottom: none; font-weight: 650; color: var(--txt); }
+.brk-note { font-size: 11.5px; color: var(--txt3); margin-top: 6px; line-height: 1.5; }
+
+/* ---------------------------------------------------------------- 提示 / 综述 */
+.warns { margin: 0 0 10px; padding: 0; list-style: none; }
+.warns li {
+  font-size: 12.5px; color: #ffd79a; background: rgba(245,166,35,.10);
+  border: 1px solid rgba(245,166,35,.24); border-radius: var(--r-sm);
+  padding: 7px 10px; margin-bottom: 6px; line-height: 1.5;
+}
+.strat { margin: 0; padding: 0; list-style: none; }
+.strat li {
+  font-size: 13px; color: var(--txt2); padding: 5px 0 5px 13px;
+  position: relative; border-bottom: 1px dashed var(--line-soft); line-height: 1.55;
+}
+.strat li:last-child { border-bottom: none; }
+.strat li::before { content: '·'; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
+.mods { font-size: 11.8px; color: var(--txt3); margin-top: 8px; line-height: 1.6; }
+.mods b { color: var(--txt2); font-weight: 600; }
+
+.empty { font-size: 13px; color: var(--txt3); text-align: center; padding: 18px 0; }
+
+/* ---------------------------------------------------------------- 档案编辑 */
+.trait-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.trait-grid .chip.bad.on { background: var(--bad); border-color: var(--bad); color: #2a0d0d; }
+.trait-grid .chip.good.on { background: var(--good); border-color: var(--good); color: #08240f; }
+.trait-grid .chip.neutral.on { background: var(--txt2); border-color: var(--txt2); color: #14181f; }
+
+.zone-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.zone-pick button {
+  padding: 7px 2px; font-size: 11.5px; border-radius: 6px; text-align: center;
+}
+.zone-pick button.w { border-color: #2f5d43; background: rgba(61,220,132,.14); color: var(--good); }
+.zone-pick button.s { border-color: #5d2f33; background: rgba(255,107,107,.14); color: var(--bad); }
+
+.skill-row { display: flex; align-items: center; gap: 9px; margin-bottom: 3px; }
+.skill-row .k { font-size: 12px; color: var(--txt2); width: 62px; flex: 0 0 auto; }
+.skill-row input[type=range] { flex: 1 1 auto; }
+.skill-row .v { font-size: 12px; width: 30px; text-align: right; color: var(--txt2); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+
+/* 抽屉 */
+.drawer-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.62); z-index: 40;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.drawer-mask.on { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
+  max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--panel); border-top: 1px solid var(--line);
+  border-radius: 16px 16px 0 0; padding: 14px 14px 26px;
+  transform: translateY(102%); transition: transform .22s cubic-bezier(.32,.72,.35,1);
+}
+.drawer.on { transform: translateY(0); }
+.drawer h3 { font-size: 15.5px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.drawer h3 .sp { margin-left: auto; }
+.drawer .grab {
+  width: 38px; height: 4px; border-radius: 2px; background: var(--line);
+  margin: -4px auto 12px;
+}
+
+/* toast */
+#toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+  background: #2b3240; color: var(--txt); border: 1px solid var(--line);
+  border-radius: 99px; padding: 8px 16px; font-size: 13px; z-index: 60;
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+  max-width: 88vw; text-align: center;
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* 底部工具条 */
+footer.tools {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
+  padding-top: 12px; border-top: 1px solid var(--line-soft);
+}
+footer.tools button { flex: 1 1 auto; font-size: 12.5px; }
+.note {
+  font-size: 11.5px; color: var(--txt3); line-height: 1.6; margin-top: 10px;
+}
+.note b { color: var(--txt2); font-weight: 600; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: var(--txt2); }
+
+/* ---------------------------------------------------------- 对手位置分析卡 */
+.pos-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 6px; margin-bottom: 11px; }
+.pos-stats .s {
+  border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+  background: var(--panel2); padding: 7px 8px;
+}
+.pos-stats .s b { display: block; font-size: 15.5px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.pos-stats .s span { font-size: 10.5px; color: var(--txt3); }
+.pos-stats .s.hi b { color: var(--good); }
+.pos-stats .s.dim b { color: var(--txt3); }
+
+.tag-behind {
+  display: inline-block; font-size: 10px; color: var(--warn); margin-left: 4px;
+  border: 1px solid rgba(245,166,35,.42); border-radius: 4px; padding: 0 4px; vertical-align: .5px;
+}
+.tag-geo {
+  display: inline-block; font-size: 10px; color: var(--txt3); margin-left: 4px;
+  border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; vertical-align: .5px;
+}
+.gap-best { color: var(--good) !important; }
+.pos-lines { margin: 10px 0 0; padding: 0; list-style: none; }
+.pos-lines li {
+  font-size: 12.8px; color: var(--txt2); padding: 5px 0 5px 13px; position: relative;
+  line-height: 1.55; border-bottom: 1px dashed var(--line-soft);
+}
+.pos-lines li:last-child { border-bottom: none; }
+.pos-lines li::before { content: '·'; position: absolute; left: 2px; color: var(--bad); font-weight: 700; }
+
+/* ------------------------------------------------------------- 引擎自检 */
+.st-line { font-size: 12.3px; padding: 2.5px 0; font-variant-numeric: tabular-nums; line-height: 1.5; }
+.st-ok { color: var(--good); }
+.st-ok::before { content: '✓ '; }
+.st-bad { color: var(--bad); }
+.st-bad::before { content: '✗ '; }
+.st-sum { font-size: 13px; font-weight: 650; margin: 8px 0 4px; }
+.st-detail { font-size: 11px; color: var(--txt3); margin-left: 14px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <h1>羽毛球单打战术助手<span class="badge">单打 · 单拍 · 站位可拖</span></h1>
+    <div class="sub">描述局面，给出排序后的球路与落点，并说明为什么。<span id="oppCount"></span></div>
+  </header>
+
+  <div id="bootMsg" class="empty">正在载入…</div>
+
+  <!-- ============ 对手 ============ -->
+  <section class="card">
+    <h2>对手<span class="hint">选一个你常打的人</span></h2>
+    <select id="oppSelect"></select>
+    <div class="field" style="margin-top:9px"><div id="oppSummary" class="desc"></div></div>
+    <div class="btn-row">
+      <button class="mini" data-act="editOpp">编辑此对手</button>
+      <button class="mini" data-act="newOpp">＋ 新建对手</button>
+      <button class="mini" data-act="editMe">我的档案</button>
+      <button class="mini ghost" data-act="demo">载入示例局面</button>
+    </div>
+  </section>
+
+  <!-- ============ 局面 ============ -->
+  <section class="card">
+    <h2>局面<span class="hint">蓝点=我 · 黄点=球 · 红点=对手，都能点也能拖</span></h2>
+
+    <div class="court-wrap"><div id="courtInput"></div></div>
+    <div class="marker-legend" id="mkLegend"></div>
+
+    <div class="field" style="margin-top:13px">
+      <label>④ 来球类型</label>
+      <div class="chips" id="incomingChips"></div>
+      <div class="desc" id="incDesc"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label>⑤ 我的击球点高度</label>
+        <div class="chips" id="heightChips"></div>
+        <div class="desc" id="heightDesc"></div>
+      </div>
+      <div class="field">
+        <label>⑥ 到位程度</label>
+        <div class="chips" id="arrivalChips"></div>
+        <div class="desc" id="arrivalDesc"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>⑦ 体力（拖动即刻重算）</label>
+      <div class="stam-row"><span class="who">我</span>
+        <input type="range" id="stamMe" min="0" max="100" step="5" value="100">
+        <span class="val" id="stamMeVal">100%</span></div>
+      <div class="stam-row"><span class="who">对方</span>
+        <input type="range" class="opp" id="stamOpp" min="0" max="100" step="5" value="100">
+        <span class="val" id="stamOppVal">100%</span></div>
+    </div>
+
+    <div class="field" style="display:flex;gap:16px 16px;flex-wrap:wrap;font-size:12.5px;color:var(--txt2)">
+      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer">
+        <input type="checkbox" id="autoFit" checked style="width:auto"> 换来球类型时自动匹配⑤⑥</label>
+      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer">
+        <input type="checkbox" id="showZones" checked style="width:auto"> 显示分区与对方强弱区</label>
+      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer">
+        <input type="checkbox" id="showCover" checked style="width:auto"> 显示对手触及范围</label>
+    </div>
+  </section>
+
+  <!-- ============ 对手位置与空当 ============ -->
+  <section class="card">
+    <h2>③ 对手位置与空当<span class="hint">几何决定落点价值</span></h2>
+    <div class="chips" id="oppPosModeChips"></div>
+    <div id="oppPosLive" class="desc" style="margin-top:7px"></div>
+    <div id="oppPosBody" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ============ 战术综述 ============ -->
+  <section class="card">
+    <h2>这一分的整体判断</h2>
+    <div id="warnings"></div>
+    <div id="strategy"></div>
+    <details class="fold">
+      <summary>情境是怎么影响权重的</summary>
+      <div class="fold-body mods" id="ctxMods"></div>
+    </details>
+  </section>
+
+  <!-- ============ 推荐 ============ -->
+  <section class="card">
+    <h2>推荐球路<span class="hint">按推荐度排序 · 点卡片里的落点可切换</span></h2>
+    <div id="results"></div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="mini" data-act="toggleAll" id="showAllBtn">显示全部</button>
+    </div>
+  </section>
+
+  <!-- ============ 被排除 ============ -->
+  <section class="card">
+    <details class="fold" style="border-top:none;margin-top:0;padding-top:0">
+      <summary id="rejCount">被硬约束排除的球路</summary>
+      <div class="fold-body" id="rejectedBody"></div>
+    </details>
+  </section>
+
+  <!-- ============ 权重 ============ -->
+  <section class="card">
+    <details class="fold" style="border-top:none;margin-top:0;padding-top:0">
+      <summary>权重面板（战术流派有分歧，按你自己的认知调）</summary>
+      <div class="fold-body" id="weightPanel"></div>
+    </details>
+  </section>
+
+  <!-- ============ 数据 ============ -->
+  <section class="card">
+    <details class="fold" id="dataFold" style="border-top:none;margin-top:0;padding-top:0">
+      <summary>数据：导出 / 导入 / 重置</summary>
+      <div class="fold-body">
+        <div class="btn-row">
+          <button class="mini" data-act="export">导出档案 JSON</button>
+          <button class="mini" data-act="import">从文件导入</button>
+          <button class="mini danger" data-act="resetAll">清空并恢复示例</button>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+        <div class="field" style="margin-top:10px">
+          <label>也可以直接粘贴 JSON</label>
+          <textarea id="importText" placeholder="粘贴档案 JSON…"></textarea>
+          <div class="btn-row" style="margin-top:7px">
+            <button class="mini" data-act="doImportText">导入上面的文本</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <div class="btn-row">
+            <button class="mini" data-act="selfTest">跑一遍引擎自检</button>
+          </div>
+          <div id="selfTestBody" style="margin-top:8px"></div>
+          <div class="desc">不需要任何工具链：改完引擎点一下，看几何逻辑有没有被改坏。</div>
+        </div>
+        <div class="note">
+          档案存在本机浏览器的 <code>localStorage</code>，不会上传。换设备请用导出/导入。<br>
+          战术默认值由标准原则（拉开突击、压后场、追身、调动与反调动）设定，
+          <b>不一定符合你的打法认知</b>——请把打分明细和权重面板当成校准入口。
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <footer class="tools">
+    <button class="mini" data-act="editMe">我的档案</button>
+    <button class="mini" data-act="editOpp">对手档案</button>
+    <button class="mini" data-act="demo">示例局面</button>
+  </footer>
+
+  <div class="note">
+    <b>v0.2 增加：</b>对手站位可以拖了（红色标记），站位驱动三件事——落点调动性打分、
+    双方体力消耗差、以及独立的「空当分析」；同时给「身后球」加了转体倒步的步法代价。<br>
+    <b>还没做的：</b>只做单打、只推单拍。组合球路（吊→搓→推→杀这类多拍推演）、
+    比分与关键分情境、双打轮转、用真实比赛数据校准参数，都还没做。
+    构建时间 <span id="builtAt">—</span> · 引擎 v<span id="engVer"></span>
+  </div>
+
+</div>
+
+<!-- ============ 档案编辑抽屉 ============ -->
+<div class="drawer-mask" id="drawerMask"></div>
+<div class="drawer" id="drawer">
+  <div class="grab"></div>
+  <h3><span id="drawerTitle">档案</span>
+    <span class="sp btn-row">
+      <button class="mini danger" id="delOppBtn" data-act="delOpp">删除</button>
+      <button class="mini" data-act="closeDrawer">关闭</button>
+    </span>
+  </h3>
+  <div id="editorBody"></div>
+  <div class="btn-row" style="margin-top:14px">
+    <button class="primary" data-act="saveProfile" style="flex:1 1 auto">完成</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ==========================================================================
+   羽毛球单打战术决策引擎  v0
+   --------------------------------------------------------------------------
+   纯逻辑模块，不含任何 DOM 代码。可在 Node 中 require 做测试，
+   也可直接内联进单文件 HTML 应用。将来移植微信小程序时整个文件拷走即可。
+
+   坐标系（单位：米）
+     x: -2.59 (我方左侧) ~ +2.59 (我方右侧)   单打边线，屏幕上方对应负值
+     y:  0    (我方底线) ~ 6.7 (球网) ~ 13.4 (对方底线)
+
+   对手站位输入（v0.2 新增）
+     oppPosMode: 'auto' 按来球类型推断 | 'manual' 采用下面的手动坐标
+     oppPos: { x, y } 世界坐标（米）。只在 manual 下生效，越界夹回对方半场。
+     站位同时驱动两条链路：参与打分的 oppReach / 体力消耗，以及独立输出的
+     ctx.posInfo 空当分析。
+   ========================================================================== */
+
+(function (root, factory) {
+  var api = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  if (root) root.BadmintonEngine = api;
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null),
+function () {
+'use strict';
+
+/* ---------------------------------------------------------------- 常量表 */
+
+var COURT = { length: 13.4, half: 6.7, width: 5.18, halfWidth: 2.59, netY: 6.7 };
+
+/* 标定常量
+   SPEED_SCALE：等级与体型算出的是相对速度系数（约 0.7~1.5），乘上它得到真实
+   场地覆盖速度（米/秒）。业余选手从中心到底角的爆发移动约 2.5~3.5 m/s。
+   这个值过小会让 oppReach 特征对所有远落点饱和到 0，失去区分度。
+   REACH_TIME_REF：够球耗时达到该秒数即视为完全够不到（落点调动性 = 1）。
+   实测业余单打最极端的对角调动约 1.3 秒，故取 1.45。 */
+var SPEED_SCALE = 2.9;
+var REACH_TIME_REF = 1.45;
+/* 对方击球后到我击球这段时间里，对方已经向中心回位的比例 */
+var OPP_RECOVER_BLEND = 0.45;
+/* 对方半场的几何中心深度，既是「回位基准点」，也是判断站位偏前/偏后的原点 */
+var OPP_BASE_Y = 10.05;
+
+/* 身后球代价：退后接球要先转体再倒步，同样的距离比前冲和侧向移动慢。
+   惩罚带门槛再加坡：只落后半步不必罚，落到 2 米开外才算吃满，
+   否则对手一站到网前，9 个分区会全被打成「身后」，这个标记就失去区分度。
+   臂展长的人可以后仰伸手把球接住，满惩罚小一些。 */
+var BEHIND_MIN_DY = 0.35;
+var BEHIND_RAMP = 2.0;
+var BEHIND_TAG_M = 1.0;
+var BEHIND_PEN = 1.30;
+var BEHIND_PEN_LONG_REACH = 1.16;
+var LONG_REACH_AS = 1.10;
+/* 空当榜里够球难度超过这个值才算「真空当」 */
+var OPEN_GAP_DIFF = 0.62;
+
+var HIT_HEIGHTS = [
+  { id: 'high', name: '高点', order: 3, desc: '击球点在头/肩以上，可下压' },
+  { id: 'mid',  name: '平点', order: 2, desc: '肩以下、腰以上' },
+  { id: 'low',  name: '低点', order: 1, desc: '腰以下，只能向上击球' }
+];
+
+var ARRIVALS = [
+  { id: 'active',  name: '主动',   order: 3, desc: '已到位，有充分准备时间' },
+  { id: 'semi',    name: '半被动', order: 2, desc: '勉强够到，重心不稳' },
+  { id: 'passive', name: '被动',   order: 1, desc: '极限救球，失去重心' }
+];
+
+/* 来球类型 */
+var INCOMING = [
+  { id: 'clear',    name: '高远球',   expectDepth: 'B', oppY: 12.0, desc: '对方从后场拉高远' },
+  { id: 'drivclr',  name: '平高球',   expectDepth: 'B', oppY: 12.0, desc: '弧线较平、速度较快' },
+  { id: 'drop',     name: '吊球',     expectDepth: 'F', oppY: 11.5, desc: '对方后场吊网前' },
+  { id: 'smash',    name: '杀球',     expectDepth: 'M', oppY: 9.5,  desc: '下压球，需防守' },
+  { id: 'drive',    name: '平抽挡',   expectDepth: 'M', oppY: 9.8,  desc: '中场快速平球' },
+  { id: 'net',      name: '网前球',   expectDepth: 'F', oppY: 8.0,  desc: '搓/放/勾，落点贴网' },
+  { id: 'loose',    name: '半场球',   expectDepth: 'M', oppY: 10.5, desc: '对方回球质量差，机会球' },
+  { id: 'liftdef',  name: '被动挑球', expectDepth: 'B', oppY: 10.0, desc: '对方被动挑起来的球' }
+];
+
+/* 体型 */
+var BODY_TYPES = [
+  { id: 'short_agile',  name: '矮小灵活型', reach: 0.82, speed: 1.16, power: 0.85, deepPenalty: 1.22, bodyVuln: 0.82, endurance: 1.05,
+    note: '重心低、启动快，网前低球处理能力强；但后场两底角和过顶深球是其负担' },
+  { id: 'tall_cover',   name: '高大覆盖型', reach: 1.28, speed: 0.90, power: 1.12, deepPenalty: 0.80, bodyVuln: 1.38, endurance: 0.90,
+    note: '覆盖面积大、下压角度狠；但追身球会让其展不开，反复变向消耗大' },
+  { id: 'strong_power', name: '壮实力量型', reach: 1.06, speed: 0.90, power: 1.32, deepPenalty: 0.94, bodyVuln: 1.15, endurance: 0.80,
+    note: '爆发力强、杀球重；但耐力偏差，长回合与多拍调动收益高' },
+  { id: 'lean_endur',   name: '瘦长耐力型', reach: 1.12, speed: 1.00, power: 0.88, deepPenalty: 1.00, bodyVuln: 1.00, endurance: 1.30,
+    note: '磨得住、失误少；靠体力拖垮他效果差，要打结构性弱点' },
+  { id: 'average',      name: '均衡型',     reach: 1.00, speed: 1.00, power: 1.00, deepPenalty: 1.00, bodyVuln: 1.00, endurance: 1.00,
+    note: '无明显结构性偏向，按技术标签和体力判断' }
+];
+
+/* 技术标签 */
+var TRAITS = [
+  { id: 'weak_backhand', name: '反手弱',     kind: 'bad',  desc: '反手后场无法进攻，只能过渡' },
+  { id: 'slow_turn',     name: '转身慢',     kind: 'bad',  desc: '对角落点、身后球处理慢半拍' },
+  { id: 'bad_footwork',  name: '步伐差',     kind: 'bad',  desc: '大范围调动即可制造空当' },
+  { id: 'bad_net',       name: '网前粗糙',   kind: 'bad',  desc: '网前只会挑球，不敢搓放' },
+  { id: 'weak_back',     name: '后场薄弱',   kind: 'bad',  desc: '退到底线就失去进攻能力' },
+  { id: 'poor_stamina',  name: '体力差',     kind: 'bad',  desc: '两局后明显掉速' },
+  { id: 'good_net',      name: '网前细腻',   kind: 'good', desc: '搓勾推质量高，网前是其主要得分区' },
+  { id: 'power_back',    name: '后场暴力',   kind: 'good', desc: '后场起跳杀球威胁极大' },
+  { id: 'good_footwork', name: '步伐好',     kind: 'good', desc: '覆盖范围大，普通调动打不死' },
+  { id: 'sticky_defense',name: '防守粘',     kind: 'good', desc: '杀球很难一拍打死，容易被反击' },
+  { id: 'net_rusher',    name: '爱抢网',     kind: 'good', desc: '网前球他会扑上来抢' },
+  { id: 'loves_smash',   name: '爱杀球',     kind: 'good', desc: '只要给高点就下压' },
+  { id: 'deep_clear_lover', name: '爱拉高远', kind: 'neutral', desc: '被动时习惯挑后场，等于送进攻机会' },
+  { id: 'left_handed',   name: '左手持拍',   kind: 'neutral', desc: '正反手位置与右手完全镜像' }
+];
+
+/* 场区偏好 */
+var COURT_PREFS = [
+  { id: 'net',       name: '网前型',   desc: '主要在前场做球，怕被压后场' },
+  { id: 'back',      name: '后场型',   desc: '主要在后场进攻，怕被调网前' },
+  { id: 'allround',  name: '全场均衡', desc: '没有明显场区偏向' }
+];
+
+/* 水平等级 */
+var LEVELS = [
+  { id: 'beginner', name: '入门',      skill: 0.42, speed: 0.78, error: 1.55, drain: 1.30 },
+  { id: 'club_low', name: '业余初级',  skill: 0.58, speed: 0.88, error: 1.28, drain: 1.15 },
+  { id: 'club_mid', name: '业余中级',  skill: 0.72, speed: 1.00, error: 1.00, drain: 1.00 },
+  { id: 'club_high',name: '业余高级',  skill: 0.85, speed: 1.13, error: 0.80, drain: 0.88 },
+  { id: 'semi_pro', name: '半专业',    skill: 0.94, speed: 1.26, error: 0.62, drain: 0.76 }
+];
+
+/* ---------------------------------------------------------------- 分区 */
+
+var DEPTH_BANDS = {
+  me: { B: [0, 2.233], M: [2.233, 4.467], F: [4.467, 6.7] },
+  op: { F: [6.7, 8.933], M: [8.933, 11.167], B: [11.167, 13.4] }
+};
+var WIDTH_BANDS = { L: [-2.59, -0.863], C: [-0.863, 0.863], R: [0.863, 2.59] };
+
+var DEPTH_NAME = { F: '网前', M: '中场', B: '后场' };
+var WIDTH_NAME = { L: '左', C: '中', R: '右' };
+
+/* 生成 18 个分区（我 9 + 对方 9），坐标为屏幕视角：左右 = 我方视角的左右
+   ID 前缀：我方 my_、对方 op_（meta.side 保留 me/op 供归属判断） */
+var ZONE_META = (function () {
+  var meta = {};
+  ['me', 'op'].forEach(function (side) {
+    var prefix = (side === 'me') ? 'my' : 'op';
+    ['F', 'M', 'B'].forEach(function (d) {
+      ['L', 'C', 'R'].forEach(function (w) {
+        var band = DEPTH_BANDS[side][d];
+        var wb = WIDTH_BANDS[w];
+        var id = prefix + '_' + d + w;
+        meta[id] = {
+          id: id, side: side, depth: d, width: w,
+          x: (wb[0] + wb[1]) / 2,
+          y: (band[0] + band[1]) / 2,
+          label: (side === 'me' ? '我方' : '对方') + DEPTH_NAME[d] + WIDTH_NAME[w]
+        };
+      });
+    });
+  });
+  return meta;
+})();
+var ZONES = Object.keys(ZONE_META);
+var MY_ZONES = ZONES.filter(function (z) { return z.indexOf('my_') === 0; });
+var OP_ZONES = ZONES.filter(function (z) { return z.indexOf('op_') === 0; });
+
+function zp(zone) { var m = ZONE_META[zone]; return { x: m.x, y: m.y }; }
+function dist(a, b) { return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)); }
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+function r2(v) { return Math.round(v * 100) / 100; }
+
+function lookup(list, id) {
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+  return list[0];
+}
+function has(p, trait) { return p && p.traits && p.traits.indexOf(trait) >= 0; }
+
+/* 对手的正/反手在屏幕上的方位。右手持拍者反手 = 其左侧 = 屏幕右侧 */
+function backhandWidth(p) { return has(p, 'left_handed') ? 'L' : 'R'; }
+function forehandWidth(p) { return has(p, 'left_handed') ? 'R' : 'L'; }
+
+/* ---------------------------------------------------------------- 球路库 */
+/* from: 允许的击球深度  minHit: 最低击球点  aim: 目标深度  dir: 目标方向
+   cost: 体力基准消耗  pressure: 给对手的压迫值  rallyLen: 回合长短倾向
+   attack: 进攻连续性  riskBase: 基础失误率  commit: 失误后的代价系数
+   rush: 打完是否需要跟进   recovery: 我的回位分区   skill: 依赖的技术项     */
+
+var SHOTS = [
+  /* ---- 后场 ---- */
+  { id: 'clear',          name: '高远球',     family: 'clear',   from: ['B','M'], minHit: 'low',  aim: 'deep',    dir: 'any',      cost: 2.1, pressure: 0.25, rallyLen:  1.0, attack:  0.05, riskBase: 0.07, commit: 0.9, rush: false, recovery: 'my_MC', skill: 'back',
+    note: '回到中性局面，争取回位时间' },
+  { id: 'driven_clear',   name: '平高球',     family: 'clear',   from: ['B'],     minHit: 'mid',  aim: 'deep',    dir: 'side',     cost: 2.3, pressure: 0.40, rallyLen:  0.6, attack:  0.25, riskBase: 0.15, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'back',
+    note: '弧线平、过顶快，压两底角，怕被拦截' },
+  { id: 'drop_straight',  name: '吊直线',     family: 'drop',    from: ['B'],     minHit: 'mid',  aim: 'net',     dir: 'straight', cost: 1.7, pressure: 0.65, rallyLen:  0.0, attack:  0.70, riskBase: 0.12, commit: 1.0, rush: true,  recovery: 'my_MC', skill: 'back',
+    note: '同一动作掩护，落点贴网' },
+  { id: 'drop_cross',     name: '吊对角',     family: 'drop',    from: ['B'],     minHit: 'mid',  aim: 'net',     dir: 'cross',    cost: 1.9, pressure: 0.75, rallyLen:  0.0, attack:  0.75, riskBase: 0.16, commit: 1.05, rush: true, recovery: 'my_MC', skill: 'back', cross: true,
+    note: '斜线距离长，对方移动代价大' },
+  { id: 'cut_drop',       name: '劈吊',       family: 'drop',    from: ['B'],     minHit: 'high', aim: 'net',     dir: 'side',     cost: 2.0, pressure: 0.80, rallyLen:  0.0, attack:  0.82, riskBase: 0.20, commit: 1.1, rush: true,  recovery: 'my_MC', skill: 'back', cross: true, deception: 0.5,
+    note: '拍面切击，出手隐蔽，落点更贴边' },
+  { id: 'smash_straight', name: '杀直线',     family: 'smash',   from: ['B'],     minHit: 'high', aim: 'midnet',  dir: 'straight', cost: 3.5, pressure: 1.00, rallyLen: -1.0, attack:  0.72, riskBase: 0.13, commit: 1.35, rush: true, recovery: 'my_MC', followIn: 1.2, skill: 'smash',
+    note: '最直接的终结手段，消耗最大' },
+  { id: 'smash_cross',    name: '杀对角',     family: 'smash',   from: ['B'],     minHit: 'high', aim: 'midnet',  dir: 'cross',    cost: 3.7, pressure: 1.05, rallyLen: -1.0, attack:  0.80, riskBase: 0.18, commit: 1.4, rush: true,  recovery: 'my_MC', followIn: 1.2, skill: 'smash', cross: true,
+    note: '落点更开，但下网和出边线风险高' },
+  { id: 'smash_body',     name: '杀追身',     family: 'smash',   from: ['B'],     minHit: 'high', aim: 'midnet',  dir: 'body',     cost: 3.3, pressure: 0.95, rallyLen: -1.0, attack:  0.68, riskBase: 0.11, commit: 1.3, rush: true,  recovery: 'my_MC', followIn: 1.2, skill: 'smash', body: true,
+    note: '打身体，让对方展不开拍' },
+  { id: 'stick_smash',    name: '点杀/劈杀',  family: 'smash',   from: ['B','M'], minHit: 'high', aim: 'midnet',  dir: 'any',      cost: 2.5, pressure: 0.80, rallyLen: -0.6, attack:  0.70, riskBase: 0.12, commit: 1.15, rush: true, recovery: 'my_MC', skill: 'smash',
+    note: '小发力、快出手，消耗远小于全力杀' },
+  { id: 'passive_clear',  name: '被动高远',   family: 'clear',   from: ['B','M'], minHit: 'low',  aim: 'deep',    dir: 'side',     cost: 2.6, pressure: 0.20, rallyLen:  1.0, attack: -0.30, riskBase: 0.20, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'back', passiveOnly: true,
+    note: '只求过场、把球打深，争取回位' },
+  { id: 'passive_drop',   name: '被动过渡吊', family: 'drop',    from: ['B'],     minHit: 'low',  aim: 'net',     dir: 'center',   cost: 2.2, pressure: 0.45, rallyLen:  0.2, attack: -0.10, riskBase: 0.24, commit: 1.05, rush: false, recovery: 'my_MC', skill: 'back', passiveOnly: true,
+    note: '低位轻挡网前，改变节奏' },
+
+  /* ---- 中场 ---- */
+  { id: 'drive_straight', name: '平抽直线',   family: 'drive',   from: ['M','B'], minHit: 'mid',  aim: 'mid',     dir: 'straight', cost: 1.5, pressure: 0.70, rallyLen: -0.4, attack:  0.50, riskBase: 0.11, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'mid',
+    note: '抢平球，压对方中场，比拼举拍反应' },
+  { id: 'drive_cross',    name: '平抽对角',   family: 'drive',   from: ['M'],     minHit: 'mid',  aim: 'mid',     dir: 'cross',    cost: 1.7, pressure: 0.75, rallyLen: -0.4, attack:  0.55, riskBase: 0.15, commit: 1.05, rush: false, recovery: 'my_MC', skill: 'mid', cross: true,
+    note: '变线拉开，但线路长易被截' },
+  { id: 'drive_body',     name: '平抽追身',   family: 'drive',   from: ['M'],     minHit: 'mid',  aim: 'mid',     dir: 'body',     cost: 1.5, pressure: 0.72, rallyLen: -0.4, attack:  0.52, riskBase: 0.10, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'mid', body: true,
+    note: '打持拍手侧髋部，最容易顶到对方' },
+  { id: 'half_smash',     name: '半场下压',   family: 'smash',   from: ['M','F'], minHit: 'high', aim: 'midnet',  dir: 'any',      cost: 2.4, pressure: 0.90, rallyLen: -0.8, attack:  0.75, riskBase: 0.13, commit: 1.2, rush: true,  recovery: 'my_MC', skill: 'smash',
+    note: '抓半场机会球，点杀或劈杀下压' },
+  { id: 'block_net',      name: '接杀挡网',   family: 'defense', from: ['M','B'], minHit: 'low',  aim: 'net',     dir: 'any',      cost: 1.3, pressure: 0.60, rallyLen:  0.2, attack:  0.55, riskBase: 0.15, commit: 1.0, rush: true,  recovery: 'my_MC', skill: 'defense', incomingOnly: ['smash','drive','loose'],
+    note: '卸力挡网前，由守转攻的关键一拍' },
+  { id: 'def_drive',      name: '接杀抽平',   family: 'defense', from: ['M','B'], minHit: 'low',  aim: 'mid',     dir: 'side',     cost: 1.7, pressure: 0.70, rallyLen: -0.3, attack:  0.35, riskBase: 0.20, commit: 1.1, rush: false, recovery: 'my_MC', skill: 'defense', incomingOnly: ['smash','drive'],
+    note: '平抽两腰，把对方从进攻位拉平' },
+  { id: 'def_lift',       name: '防守挑后场', family: 'defense', from: ['M','B'], minHit: 'low',  aim: 'deep',    dir: 'side',     cost: 1.5, pressure: 0.30, rallyLen:  1.0, attack: -0.25, riskBase: 0.12, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'defense', incomingOnly: ['smash','drive','drop'],
+    note: '挑到两底角，重新组织防守' },
+  { id: 'transition_mid', name: '过渡中场球', family: 'defense', from: ['M','B'], minHit: 'low',  aim: 'mid',     dir: 'side',     cost: 1.6, pressure: 0.35, rallyLen:  0.4, attack: -0.15, riskBase: 0.16, commit: 0.95, rush: false, recovery: 'my_MC', skill: 'defense', passiveOnly: true,
+    note: '不追求质量，只把球送到对方中场两侧' },
+
+  /* ---- 网前 ---- */
+  { id: 'net_spin',       name: '搓球',       family: 'net',     from: ['F'],     minHit: 'low',  aim: 'net',     dir: 'any',      cost: 1.2, pressure: 0.72, rallyLen:  0.1, attack:  0.85, riskBase: 0.14, commit: 1.0, rush: true,  recovery: 'my_MC', skill: 'net',
+    note: '滚网/展网，逼对方起高球' },
+  { id: 'net_play',       name: '放网',       family: 'net',     from: ['F'],     minHit: 'low',  aim: 'net',     dir: 'straight', cost: 1.1, pressure: 0.62, rallyLen:  0.1, attack:  0.78, riskBase: 0.11, commit: 0.95, rush: true, recovery: 'my_MC', skill: 'net',
+    note: '最省力，把球贴网放回' },
+  { id: 'cross_net',      name: '勾对角',     family: 'net',     from: ['F'],     minHit: 'low',  aim: 'net',     dir: 'cross',    cost: 1.4, pressure: 0.85, rallyLen:  0.0, attack:  0.82, riskBase: 0.21, commit: 1.05, rush: true, recovery: 'my_MC', skill: 'net', cross: true, deception: 0.6,
+    note: '斜穿网前，对方需横穿整个前场' },
+  { id: 'push_straight',  name: '推直线',     family: 'net',     from: ['F'],     minHit: 'mid',  aim: 'mid',     dir: 'side',     cost: 1.3, pressure: 0.78, rallyLen: -0.3, attack:  0.60, riskBase: 0.14, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'net',
+    note: '推对方中场两腰，越过其网前手' },
+  { id: 'push_body',      name: '推追身',     family: 'net',     from: ['F'],     minHit: 'mid',  aim: 'mid',     dir: 'body',     cost: 1.3, pressure: 0.75, rallyLen: -0.3, attack:  0.58, riskBase: 0.12, commit: 1.0, rush: false, recovery: 'my_MC', skill: 'net', body: true,
+    note: '推身体，抢其举拍空间' },
+  { id: 'net_lift',       name: '挑球',       family: 'lift',    from: ['F'],     minHit: 'low',  aim: 'deep',    dir: 'side',     cost: 1.5, pressure: 0.28, rallyLen:  1.0, attack: -0.28, riskBase: 0.10, commit: 0.95, rush: false, recovery: 'my_MC', skill: 'net',
+    note: '挑两底角，交出进攻权但换取回位' },
+  { id: 'net_kill',       name: '扑球',       family: 'smash',   from: ['F'],     minHit: 'high', aim: 'netmid',  dir: 'any',      cost: 1.7, pressure: 1.00, rallyLen: -1.0, attack:  0.55, riskBase: 0.17, commit: 1.25, rush: true, recovery: 'my_MC', skill: 'net',
+    note: '网前高点直接下压，过网即坠' }
+];
+
+/* ---------------------------------------------------------------- 档案 */
+
+function defaultSkills() { return { net: 0.70, back: 0.70, mid: 0.70, smash: 0.70, defense: 0.70 }; }
+
+function defaultMe() {
+  return {
+    id: 'me', name: '我', isMe: true,
+    level: 'club_mid', body: 'average', traits: [], courtPref: 'allround',
+    staminaMax: 100, drain: 1.0,
+    skills: defaultSkills(),
+    customWeak: [], customStrong: [],
+    note: '默认档案，请在「我的档案」里改成你自己的实际情况'
+  };
+}
+
+function sampleOpponents() {
+  return [
+    { id: 'opp_laowang', name: '示例·后场暴力型', isMe: false,
+      level: 'club_high', body: 'strong_power', traits: ['power_back', 'loves_smash', 'poor_stamina', 'bad_net'],
+      courtPref: 'back', staminaMax: 100, drain: 1.25,
+      skills: { net: 0.55, back: 0.92, mid: 0.72, smash: 0.95, defense: 0.68 },
+      customWeak: [], customStrong: [],
+      note: '杀球重、网前粗、体力掉得快——典型的「别跟他拼前半场，拖到第二局后半段」' },
+    { id: 'opp_xiaoli', name: '示例·网前细腻型', isMe: false,
+      level: 'club_mid', body: 'short_agile', traits: ['good_net', 'good_footwork', 'net_rusher', 'weak_back'],
+      courtPref: 'net', staminaMax: 100, drain: 0.95,
+      skills: { net: 0.90, back: 0.58, mid: 0.74, smash: 0.60, defense: 0.78 },
+      customWeak: [], customStrong: [],
+      note: '网前做球好、后场薄弱——压后场两底角，别跟他斗网前' },
+    { id: 'opp_dage', name: '示例·高大覆盖型', isMe: false,
+      level: 'club_high', body: 'tall_cover', traits: ['good_footwork', 'weak_backhand', 'slow_turn'],
+      courtPref: 'allround', staminaMax: 100, drain: 1.05,
+      skills: { net: 0.72, back: 0.85, mid: 0.78, smash: 0.88, defense: 0.80 },
+      customWeak: [], customStrong: [],
+      note: '覆盖面积大但反手弱、转身慢——反复压反手后场底角 + 对角调动' },
+    { id: 'opp_moci', name: '示例·磨王防守型', isMe: false,
+      level: 'club_high', body: 'lean_endur', traits: ['sticky_defense', 'good_footwork', 'deep_clear_lover'],
+      courtPref: 'allround', staminaMax: 100, drain: 0.72,
+      skills: { net: 0.76, back: 0.78, mid: 0.80, smash: 0.66, defense: 0.94 },
+      customWeak: [], customStrong: [],
+      note: '失误极少、防守粘、体力好——杀球收益低，要靠落点极致开合和网前变化' }
+  ];
+}
+
+/* ------------------------------------------------- 对手强弱区推导 */
+
+function opponentZonesProfile(opp) {
+  var weak = {}, strong = {};
+  function addW(z, v) { weak[z] = Math.max(weak[z] || 0, v); }
+  function addS(z, v) { strong[z] = Math.max(strong[z] || 0, v); }
+  var bh = backhandWidth(opp), fh = forehandWidth(opp);
+
+  if (has(opp, 'weak_backhand')) { addW('op_B' + bh, 0.90); addW('op_M' + bh, 0.55); }
+  if (has(opp, 'weak_back'))     { addW('op_BL', 0.55); addW('op_BC', 0.50); addW('op_BR', 0.55); }
+  if (has(opp, 'bad_net'))       { addW('op_FL', 0.70); addW('op_FC', 0.65); addW('op_FR', 0.70); }
+  if (has(opp, 'bad_footwork'))  { addW('op_BL', 0.50); addW('op_BR', 0.50); addW('op_FL', 0.50); addW('op_FR', 0.50); }
+  if (has(opp, 'slow_turn'))     { addW('op_B' + fh, 0.35); addW('op_F' + fh, 0.35); }
+
+  if (has(opp, 'power_back'))    { addS('op_BL', 0.85); addS('op_BC', 0.70); addS('op_BR', 0.85); }
+  if (has(opp, 'good_net'))      { addS('op_FL', 0.75); addS('op_FC', 0.70); addS('op_FR', 0.75); }
+  if (has(opp, 'good_footwork')) { addS('op_MC', 0.30); }
+  if (has(opp, 'sticky_defense')){ addS('op_ML', 0.35); addS('op_MR', 0.35); addS('op_MC', 0.35); }
+
+  if (opp.courtPref === 'net')  { addS('op_FL', 0.45); addS('op_FC', 0.45); addS('op_FR', 0.45); addW('op_BL', 0.40); addW('op_BR', 0.40); }
+  if (opp.courtPref === 'back') { addS('op_BL', 0.45); addS('op_BR', 0.45); addW('op_FL', 0.35); addW('op_FR', 0.35); }
+
+  (opp.customWeak || []).forEach(function (z) { addW(z, 0.95); });
+  (opp.customStrong || []).forEach(function (z) { addS(z, 0.95); });
+
+  /* 强区里的弱点互相抵消：技术标签优先于场区偏好 */
+  Object.keys(weak).forEach(function (z) {
+    if (strong[z]) { var n = strong[z] - weak[z]; if (n <= 0) delete strong[z]; else weak[z] = 0; }
+  });
+  return { weak: weak, strong: strong, backhandWidth: bh, forehandWidth: fh };
+}
+
+function opponentSpeed(opp, oppStamina) {
+  var lv = lookup(LEVELS, opp.level), bt = lookup(BODY_TYPES, opp.body);
+  var foot = has(opp, 'good_footwork') ? 1.14 : (has(opp, 'bad_footwork') ? 0.80 : 1.0);
+  var turn = has(opp, 'slow_turn') ? 0.93 : 1.0;
+  var stam = 0.55 + 0.45 * clamp(oppStamina, 0, 1);
+  return lv.speed * bt.speed * foot * turn * stam;
+}
+
+function mySpeed(me, myStamina) {
+  var lv = lookup(LEVELS, me.level), bt = lookup(BODY_TYPES, me.body);
+  return lv.speed * bt.speed * (0.55 + 0.45 * clamp(myStamina, 0, 1));
+}
+
+/* ---------------------------------------------------------------- 权重 */
+
+/* 默认权重，按四个因子组配比（总量约 9.25）：
+     落点质量  oppReach 1.60 + weak 1.20 + strong 0.90 = 3.70  ← 最大组，「打哪个点」是核心
+     自身执行  exec 1.35 + risk 0.90                    = 2.25
+     体力移动  myCost 1.00 + stamina 0.80               = 1.80
+     战术节奏  attack 0.90 + rally 0.60                 = 1.50
+   全部可在界面「权重面板」里改，改完立即重算。 */
+var DEFAULT_WEIGHTS = {
+  oppReach: 1.60,  /* 落点调动性：对方够这个球有多难受 */
+  weak:     1.20,  /* 命中弱点 */
+  strong:   0.90,  /* 避开强点（负向） */
+  exec:     1.35,  /* 自身成功率 */
+  myCost:   1.00,  /* 我的移动与回位代价（负向） */
+  stamina:  0.80,  /* 双方体力消耗差 */
+  attack:   0.90,  /* 进攻连续性 */
+  rally:    0.60,  /* 回合长短策略 */
+  risk:     0.90   /* 失误代价（负向） */
+};
+
+var WEIGHT_LABELS = {
+  oppReach: '落点调动性', weak: '打弱点', strong: '避开强点', exec: '自身成功率',
+  myCost: '我的移动代价', stamina: '体力消耗差', attack: '进攻连续性',
+  rally: '回合长短策略', risk: '失误代价'
+};
+
+/* 情境调制：这是「同一个球，体力不同打法不同」的实现处 */
+function computeContext(inp, zProf) {
+  var myS = clamp(inp.myStamina / 100, 0, 1);
+  var oppS = clamp(inp.oppStamina / 100, 0, 1);
+  var me = inp.me, opp = inp.opp;
+  var btO = lookup(BODY_TYPES, opp.body), btM = lookup(BODY_TYPES, me.body);
+
+  /* 回合长短的方向：+1 = 想拉长，-1 = 想尽快结束 */
+  var dirRally = 0;
+  if (oppS < 0.45) dirRally += (0.45 - oppS) / 0.45;
+  if (has(opp, 'poor_stamina')) dirRally += 0.25;
+  if (btO.endurance < 0.95) dirRally += 0.18;
+  if (myS < 0.40) dirRally -= (0.40 - myS) / 0.40 * (oppS > 0.40 ? 1.0 : 0.35);
+  if (has(me, 'poor_stamina')) dirRally -= 0.15;
+  if (btM.endurance > 1.15 && oppS > 0.5) dirRally += 0.12;
+  dirRally = clamp(dirRally, -1, 1);
+
+  var w = {};
+  Object.keys(DEFAULT_WEIGHTS).forEach(function (k) { w[k] = DEFAULT_WEIGHTS[k]; });
+  var userW = inp.weights || {};
+  Object.keys(userW).forEach(function (k) { if (typeof userW[k] === 'number' && DEFAULT_WEIGHTS[k] !== undefined) w[k] = userW[k]; });
+
+  /* 情境乘数（记录出来供界面展示） */
+  var mods = [];
+  function applyMod(key, factor, why) {
+    w[key] = w[key] * factor;
+    if (Math.abs(factor - 1) > 0.02) mods.push({ key: key, label: WEIGHT_LABELS[key], factor: r2(factor), why: why });
+  }
+
+  if (myS < 0.75) applyMod('myCost', 1 + 1.35 * (0.75 - myS) / 0.75, '我方体力 ' + Math.round(myS * 100) + '%，跑动代价放大');
+  if (oppS < 0.75) applyMod('oppReach', 1 + 0.55 * (0.75 - oppS) / 0.75, '对方体力 ' + Math.round(oppS * 100) + '%，调动收益放大');
+  if (oppS < 0.75) applyMod('weak', 1 + 0.35 * (0.75 - oppS) / 0.75, '对方体力下降，压弱点更划算');
+  if (oppS > 0.55) applyMod('strong', 1 + 0.45 * (oppS - 0.55) / 0.45, '对方体力充沛，更要避开其强点');
+  if (myS < 0.35 && oppS > 0.45) applyMod('attack', 1.28, '我快没体力而对方还有，倾向尽快结束回合');
+  if (oppS < 0.35) applyMod('attack', 0.72, '对方已疲劳，不必冒险强攻');
+  if (oppS < 0.45) applyMod('risk', 1.30, '对方疲劳期，低成功率强攻不划算，压失误');
+  if (myS < 0.30) applyMod('risk', 1.18, '我方体力低，动作变形失误率上升');
+  if (myS < 0.6 || oppS < 0.6) applyMod('stamina', 1 + 0.5 * (2 - myS - oppS) / 2, '进入体力博弈阶段，消耗差权重上升');
+  if (has(opp, 'sticky_defense')) applyMod('attack', 0.82, '对方防守粘，一拍打不死，进攻连续性收益下降');
+  if (has(opp, 'poor_stamina')) applyMod('stamina', 1.22, '对方体力差，消耗战收益高');
+
+  /* 追身球价值的整体调节（由体型决定，落在特征里，不进权重） */
+  var notes = [];
+  if (btO.bodyVuln > 1.2) notes.push('对方为' + btO.name + '，追身球价值显著提高');
+  if (btO.bodyVuln < 0.9) notes.push('对方为' + btO.name + '，追身球效果一般，应主打两底角与大对角调动');
+  if (btO.deepPenalty > 1.1) notes.push('对方' + btO.name + '，后场两底角深球是其负担');
+  if (btO.deepPenalty < 0.9) notes.push('对方' + btO.name + '，覆盖范围大，单纯压后场收益有限');
+
+  return {
+    myS: myS, oppS: oppS, dirRally: r2(dirRally),
+    weights: w, mods: mods, notes: notes,
+    oppSpeed: opponentSpeed(opp, oppS), mySpeed: mySpeed(me, myS),
+    zProf: zProf
+  };
+}
+
+/* ---------------------------------------------------------------- 特征计算 */
+
+var AIM_MAP = { deep: ['B'], mid: ['M'], net: ['F'], midnet: ['M', 'F'], netmid: ['F', 'M'], all: ['F', 'M', 'B'] };
+
+function genTargets(shot, hitZone) {
+  var hw = ZONE_META[hitZone].width;
+  var depths = AIM_MAP[shot.aim] || ['B'];
+  var widths;
+  if (shot.dir === 'straight') widths = [hw];
+  else if (shot.dir === 'cross') widths = (hw === 'C') ? ['L', 'R'] : [hw === 'L' ? 'R' : 'L'];
+  else if (shot.dir === 'body') widths = ['C'];
+  else if (shot.dir === 'center') widths = ['C'];
+  else if (shot.dir === 'side') widths = ['L', 'R'];
+  else widths = ['L', 'C', 'R'];
+
+  var out = [];
+  depths.forEach(function (d) {
+    widths.forEach(function (w) {
+      var z = 'op_' + d + w;
+      if (!ZONE_META[z]) return;
+      if (out.indexOf(z) < 0) out.push(z);
+    });
+  });
+  return out;
+}
+
+function feasible(shot, inp) {
+  var hitZone = inp.landZone;
+  var meta = ZONE_META[hitZone];
+  if (!meta) return { ok: false, why: '落点分区无效' };
+  /* 收集全部不满足的约束，一次性告知，避免只看到第一条原因 */
+  var why = [];
+  if (shot.from.indexOf(meta.depth) < 0) {
+    why.push('击球位置需在' + shot.from.map(function (d) { return DEPTH_NAME[d]; }).join('/'));
+  }
+  var hh = lookup(HIT_HEIGHTS, inp.hitHeight).order;
+  var mh = lookup(HIT_HEIGHTS, shot.minHit).order;
+  if (hh < mh) why.push('需要' + lookup(HIT_HEIGHTS, shot.minHit).name + '以上击球点');
+  if (shot.incomingOnly && shot.incomingOnly.indexOf(inp.incoming) < 0) {
+    why.push('仅用于应对' + shot.incomingOnly.map(function (i) { return lookup(INCOMING, i).name; }).join('/'));
+  }
+  var arr = lookup(ARRIVALS, inp.arrival).order;
+  if (shot.passiveOnly && arr >= 3) why.push('主动到位时有更好的选择');
+  if (!shot.passiveOnly && shot.family === 'smash' && arr === 1) why.push('被动极限救球无法下压');
+  if (why.length) return { ok: false, why: why.join('；') };
+  return { ok: true };
+}
+
+/* 落点是否在该人的「身后」——比他当前位置更靠底线，需要转体倒步去接 */
+function isBehind(start, targetZone) {
+  return ZONE_META[targetZone].y - start.y >= BEHIND_TAG_M;
+}
+
+/* 够球难度 [0,1]（1 = 极难）连同距离/耗时/身后标记等中间量一起返回。
+   位置分析卡片要复用同一套几何，所以这里必须返回明细而不是只返回一个数 */
+function reachDetail(ctx, opp, targetZone, shot) {
+  var t = zp(targetZone);
+  var start = ctx.oppStart;
+  var d = dist(start, t);
+  var bt = lookup(BODY_TYPES, opp.body);
+  var dy = t.y - start.y;
+  var back = Math.max(0, dy);
+
+  /* 追身球：不需要跑动，但展不开拍。用另一套逻辑 */
+  if (shot.body) {
+    var bodyD = Math.abs(start.x - t.x);
+    var vuln = bt.bodyVuln * (has(opp, 'slow_turn') ? 1.25 : 1.0);
+    return { diff: clamp(0.30 + 0.42 * vuln - bodyD * 0.03, 0, 1), d: d, eff: 0, tSec: 0, back: 0, behind: false };
+  }
+
+  /* 覆盖半径：高大型手臂长腿长，等效缩短距离 */
+  var reachM = 0.55 * bt.reach;
+  /* 深区（底线两角）系数：>1 对该体型更吃力（矮小灵活型怕过顶深球），
+     <1 反而更轻松（高大覆盖型一步不到底线也够得着） */
+  var depthPenalty = (ZONE_META[targetZone].depth === 'B') ? bt.deepPenalty : 1.0;
+  var eff = Math.max(0.15, (d - reachM) * depthPenalty);
+
+  /* 对角变向对转身慢/步伐差的人额外加重 */
+  if (shot.cross) {
+    var turnPen = has(opp, 'slow_turn') ? 1.22 : (has(opp, 'bad_footwork') ? 1.18 : 1.06);
+    eff *= turnPen;
+  }
+  /* 身后球：先转体再倒步，惩罚随身后纵深线性长满 */
+  if (dy > BEHIND_MIN_DY) {
+    var fullPen = bt.reach >= LONG_REACH_AS ? BEHIND_PEN_LONG_REACH : BEHIND_PEN;
+    eff *= 1 + (fullPen - 1) * clamp((dy - BEHIND_MIN_DY) / BEHIND_RAMP, 0, 1);
+  }
+
+  var speed = Math.max(1.0, ctx.oppSpeed * SPEED_SCALE);
+  var tSec = eff / speed;
+  return {
+    diff: clamp(tSec / REACH_TIME_REF, 0, 1), d: d, eff: r2(eff), tSec: r2(tSec),
+    back: r2(back), behind: isBehind(start, targetZone)
+  };
+}
+
+/* 我方执行成功率 */
+function execSuccess(ctx, me, shot, inp) {
+  var lv = lookup(LEVELS, me.level);
+  var sk = (me.skills && typeof me.skills[shot.skill] === 'number') ? me.skills[shot.skill] : 0.7;
+  var skillF = 0.52 + 0.48 * clamp(sk, 0, 1);
+  var levelF = 0.70 + 0.30 * lv.skill;
+  var hh = inp.hitHeight;
+  var heightF = hh === 'high' ? 1.0 : (hh === 'mid' ? 0.90 : 0.74);
+  var arr = inp.arrival;
+  var arrivalF = arr === 'active' ? 1.0 : (arr === 'semi' ? 0.80 : 0.58);
+  var stamF = 0.76 + 0.24 * ctx.myS;
+  var courtF = 1.0;
+  if (me.courtPref === 'net' && shot.from.indexOf('B') >= 0 && ZONE_META[inp.landZone].depth === 'B') courtF = 0.90;
+  if (me.courtPref === 'back' && ZONE_META[inp.landZone].depth === 'F') courtF = 0.92;
+  if (has(me, 'weak_backhand')) {
+    var bhW = backhandWidth(me);
+    if (ZONE_META[inp.landZone].width === bhW && ZONE_META[inp.landZone].depth === 'B') courtF *= 0.82;
+  }
+
+  var quality = clamp(skillF * levelF * heightF * arrivalF * stamF * courtF, 0.15, 1.05);
+  var riskMult = shot.cross ? 1.12 : 1.0;
+  if (shot.deception) riskMult *= 1.10;
+  var failRisk = clamp(shot.riskBase * riskMult * (2.2 - 1.8 * quality), 0.02, 0.75);
+  return { success: clamp(1 - failRisk, 0.05, 0.98), failRisk: failRisk, quality: r2(quality) };
+}
+
+/* 回位点：分区中心 + 需要跟进的球路向网前压的米数 */
+function recoveryPointOf(shot) {
+  var base = zp(shot.recovery);
+  if (!shot.followIn) return base;
+  return { x: base.x, y: clamp(base.y + shot.followIn, 0, COURT.netY - 0.3) };
+}
+
+/* 体力消耗 */
+function energyModel(ctx, me, opp, shot, inp, targetZone) {
+  var hitP = zp(inp.landZone);
+  var myPos = zp(inp.myPos);
+  var rec = recoveryPointOf(shot);
+  var dToBall = dist(myPos, hitP);
+  var dRecover = dist(hitP, rec);
+  var myMove = dToBall + dRecover * (shot.rush ? 1.15 : 1.0);
+
+  var btM = lookup(BODY_TYPES, me.body), btO = lookup(BODY_TYPES, opp.body);
+  var lvM = lookup(LEVELS, me.level), lvO = lookup(LEVELS, opp.level);
+
+  var myE = (shot.cost * 0.55 + myMove * 0.30) * me.drain / (btM.endurance * (0.85 + 0.3 * lvM.skill));
+  /* 疲劳放大：体力越低，同样动作消耗越大 */
+  myE *= (1 + 0.45 * (1 - ctx.myS));
+
+  var oppStart = ctx.oppStart, t = zp(targetZone);
+  var dOpp = shot.body ? 0.5 : dist(oppStart, t);
+  var oppE = (shot.pressure * 1.1 + dOpp * 0.30) * opp.drain / (btO.endurance * (0.85 + 0.3 * lvO.skill));
+  oppE *= (1 + 0.55 * (1 - ctx.oppS));
+
+  var diff = oppE - myE;                 /* 正数 = 对方比我更累，划算 */
+  return {
+    myE: r2(myE), oppE: r2(oppE), diff: r2(diff),
+    f: clamp(diff / 2.2, -1, 1),
+    dToBall: r2(dToBall), dRecover: r2(dRecover), dOpp: r2(dOpp),
+    myMove: r2(myMove)
+  };
+}
+
+/* 对方最可能的回球 */
+function likelyReply(shot, targetZone, opp, ctx) {
+  var zProf = ctx.zProf;
+  var depth = ZONE_META[targetZone].depth;
+  var skNet = opp.skills ? opp.skills.net : 0.7;
+  var skBack = opp.skills ? opp.skills.back : 0.7;
+  var weakHere = (zProf.weak[targetZone] || 0) > 0.45;
+
+  if (shot.family === 'smash' || shot.id === 'net_kill') {
+    if (has(opp, 'sticky_defense')) return '对方防守粘，大概率挡网前或抽平两腰——杀完必须举拍跟进，别指望一拍打死';
+    if (weakHere) return '该落点是其弱区，回球质量会差，你可以准备封网';
+    return '对方大概率挡网前或挑后场，杀后你要立刻压重心跟进';
+  }
+  if (depth === 'F') {
+    if (has(opp, 'net_rusher')) return '对方爱抢网，会扑上来推压或搓——你的网前球必须够贴网，否则被抢';
+    if (has(opp, 'bad_net') || skNet < 0.6) return '对方网前粗糙，大概率只能挑后场，你可直接转入进攻';
+    if (skNet > 0.8) return '对方网前细腻，可能搓/勾回一个更贴网的球，你需要提前启动';
+    return '对方可能搓放网前或挑后场，保持重心略前';
+  }
+  if (depth === 'B') {
+    if (has(opp, 'power_back') || has(opp, 'loves_smash')) return '给到后场高点，对方可能直接起跳杀球——回位要压低重心准备防守';
+    if (has(opp, 'weak_back') || skBack < 0.62 || weakHere) return '对方后场薄弱，只能回高远或过渡，你可以继续压';
+    if (has(opp, 'deep_clear_lover')) return '对方习惯回拉高远，回合会拉长，注意体力分配';
+    return '对方大概率回高远或吊球，回到中性局面';
+  }
+  /* 中场 */
+  if (has(opp, 'good_footwork')) return '对方步伐好，中场平球他能顶回来，比拼举拍速度';
+  return '对方可能平抽变线或挡网，保持举拍、重心在前脚掌';
+}
+
+/* -------------------------------------------------- 对手位置：解析 */
+/* 站位来源有两种：
+     auto   —— 按来球类型推断（高远=他刚从底线击球并回位了一半，杀球=他在中场防守…）
+     manual —— 你把红色标记拖到实际看到的站位
+   手动值越界（跑出边线、过网）时只把出界的那一维夹回半场，不整体退回自动值，
+   否则用户会以为拖动没生效。 */
+function resolveOppPos(inp, inc, warnings) {
+  var auto = {
+    x: 0,
+    y: inc.oppY * (1 - OPP_RECOVER_BLEND) + OPP_BASE_Y * OPP_RECOVER_BLEND
+  };
+  if (inp.oppPosMode !== 'manual' || !inp.oppPos) {
+    return { start: auto, auto: auto, manual: false };
+  }
+
+  var raw = inp.oppPos;
+  /* 手动值可能来自 localStorage 或用户粘贴的 JSON，坏数据会让整套几何变成 NaN */
+  if (typeof raw.x !== 'number' || typeof raw.y !== 'number' ||
+      !isFinite(raw.x) || !isFinite(raw.y)) {
+    warnings.push('对手位置数据无效，已退回「按来球推断」。');
+    return { start: auto, auto: auto, manual: false };
+  }
+  var p = {
+    x: clamp(raw.x, -COURT.halfWidth, COURT.halfWidth),
+    y: clamp(raw.y, COURT.netY, COURT.length)
+  };
+  if (Math.abs(p.x - raw.x) > 0.05 || Math.abs(p.y - raw.y) > 0.05) {
+    warnings.push('对手位置不能出边线或过网，已贴回对方半场边缘。');
+  }
+
+  /* 站位与来球类型的交叉验证：两者矛盾时，多半是「球在空中这 0.5 秒里他已经动了」 */
+  var dAuto = auto.y - p.y;
+  if (inc.expectDepth === 'B' && p.y < 9.2) {
+    warnings.push('来球是' + inc.name + '（对方在底线击球），但你把对手标在' +
+      (p.y < 8.9 ? '网前' : '中场') + '——只有他「击完球立即随球上网」才是这个局面。' +
+      '若他只是回位，请复位为按来球推断；若确实上网了，那他身后整片后场都是空的。');
+  } else if (inc.expectDepth === 'F' && p.y > 11.2) {
+    warnings.push('来球是' + inc.name + '（对方在网前击球），但你把对手标在底线后方——' +
+      '他来不及退这么多，确认是否拖过头了。');
+  } else if (Math.abs(dAuto) > 2.2) {
+    warnings.push('手动站位比来球推断位置' + (dAuto > 0 ? '靠前' : '靠后') + '约 ' +
+      r2(Math.abs(dAuto)) + ' 米，落点排名会明显不同，这是预期的：几何空当由站位决定。');
+  }
+  return { start: p, auto: auto, manual: true };
+}
+
+/* -------------------------------------------------- 对手位置：空当分析 */
+/* 中性探针球：只问「这个点多远、多难够」，不带球路的对角/追身特性 */
+var POS_PROBE = {};
+
+function posDesc(p, zProf) {
+  var depth = p.y < 8.933 ? '网前' : (p.y < 11.167 ? '中场' : '后场');
+  if (Math.abs(p.x) < 0.45) return depth + '中路';
+  /* 用与分区标签同一套「左/中/右」，否则和实时读数、空当榜对不上号。
+     这块场地是横着画的，所以左右对应屏幕上下，放最后当补充说明。 */
+  var w = p.x < 0 ? 'L' : 'R';
+  var screen = p.x < 0 ? '屏幕上方' : '屏幕下方';
+  return depth + WIDTH_NAME[w] + '（' + screen + '，' +
+    (w === zProf.backhandWidth ? '他的反手位' : '他的正手位') + '）';
+}
+
+function analyzeOppPosition(inp, ctx, opp, zProf) {
+  var p = ctx.oppStart;
+  var bt = lookup(BODY_TYPES, opp.body);
+  var speed = Math.max(1.0, ctx.oppSpeed * SPEED_SCALE);
+  var arm = 0.55 * bt.reach;
+  /* 舒适触及半径：取难度 0.5 的等值线，即参考耗时的一半。
+     用整个 REACH_TIME_REF 会算出「完全够不到」的那一圈，半径 4~5 米，
+     比对方半场还大，画出来没有意义。 */
+  var coverR = 0.5 * REACH_TIME_REF * speed + arm;
+
+  /* 综合价值 = 与落点有关的三项因子，按当前权重的加权平均。
+     刻意与 scoreCandidate 用同一套因子定义，这样表格里的数字能和排名对得上，
+     拖动权重条时这张表也会跟着变。 */
+  var w = ctx.weights;
+  var wSum = Math.max(0.001, w.oppReach + w.weak + w.strong);
+
+  var zones = OP_ZONES.map(function (z) {
+    var det = reachDetail(ctx, opp, z, POS_PROBE);
+    var wk = zProf.weak[z] || 0, st = zProf.strong[z] || 0;
+    return {
+      zone: z,
+      label: ZONE_META[z].label.replace('对方', ''),
+      dist: r2(det.d), diff: r2(det.diff), tSec: det.tSec, behind: det.behind,
+      back: det.back, weak: r2(wk), strong: r2(st),
+      /* 几何上够不着（空当）× 技术上处理不好（弱点） */
+      value: r2((w.oppReach * det.diff + w.weak * Math.max(0, wk - st) - w.strong * st) / wSum)
+    };
+  });
+  var byDiff = zones.slice().sort(function (a, b) { return b.diff - a.diff; });
+  var byValue = zones.slice().sort(function (a, b) { return b.value - a.value; });
+  var open = byDiff.filter(function (z) { return z.diff >= OPEN_GAP_DIFF; });
+  var behind = zones.filter(function (z) { return z.behind; })
+                    .sort(function (a, b) { return b.back - a.back || b.value - a.value; });
+
+  /* 两点调动：以综合价值最高的落点为锚（和主榜同一口径），
+     再配一个真正跨过对手站位（对角或前后反转）的次优点。
+     同侧平移不算调动，所以必须先判跨轴。 */
+  var swing = null;
+  if (byValue.length) {
+    var z1 = byValue[0], q1 = zp(z1.zone);
+    var best = null, bestScore = -1;
+    zones.forEach(function (c) {
+      if (c.zone === z1.zone) return;
+      var q2 = zp(c.zone);
+      var crosses = (q2.x - p.x) * (q1.x - p.x) < 0 || (q2.y - p.y) * (q1.y - p.y) < 0;
+      if (!crosses) return;
+      var sc = dist(q1, q2) + c.value * 2;
+      if (sc > bestScore) { bestScore = sc; best = { to: c, sep: r2(dist(q1, q2)) }; }
+    });
+    if (best) {
+      swing = {
+        from: z1, to: best.to, sep: best.sep,
+        total: r2(z1.dist + best.sep)
+      };
+    }
+  }
+
+  /* 圈内落点数：比「覆盖面积占半场百分比」直观，也不会算出 >100% 这种荒谬值 */
+  var inside = zones.filter(function (z) { return z.dist <= coverR; }).length;
+
+  var space = {
+    toNet: r2(p.y - COURT.netY), toBaseline: r2(COURT.length - p.y),
+    toScreenTop: r2(p.x + COURT.halfWidth), toScreenBottom: r2(COURT.halfWidth - p.x)
+  };
+  var delta = ctx.oppManual
+    ? { dx: r2(p.x - ctx.oppAuto.x), dy: r2(p.y - ctx.oppAuto.y) }
+    : null;
+
+  var lines = [];
+  lines.push('对手站在' + posDesc(p, zProf) + '，舒适触及半径约 ' + r2(coverR) +
+    ' 米（9 个分区里 ' + inside + ' 个落在这个范围内）。');
+
+  if (delta) {
+    lines.push('你手动摆放的位置比「按来球推断」' +
+      (Math.abs(delta.dy) >= 0.15 ? (delta.dy > 0 ? '靠后 ' : '靠前 ') + r2(Math.abs(delta.dy)) + ' 米' : '深度几乎一致') +
+      (Math.abs(delta.dx) >= 0.15 ? '、' + (delta.dx < 0 ? '偏左（屏幕上方） ' : '偏右（屏幕下方） ') + r2(Math.abs(delta.dx)) + ' 米' : '') + '。');
+  }
+
+  if (!open.length) {
+    lines.push('按当前站位，9 个分区的够球难度都没过阈值——落点本身造不出空当。' +
+      '这时候要改用重复落点（让他两次跑同一个点）和节奏变化，光换角落打不死他。');
+  } else {
+    lines.push('真空当 ' + open.length + ' 个：' +
+      open.slice(0, 3).map(function (z) {
+        return z.label + '（' + z.dist + 'm' + (z.behind ? '·身后' : '') + '）';
+      }).join('、') + '。');
+  }
+
+  /* 下面只报算出来的量，不给「就该打哪里」的结论——
+     站位和排名是两回事，写死了就一定会和上面的榜打架。 */
+  if (behind.length) {
+    lines.push('他身后有 ' + space.toBaseline + ' 米纵深，其中 ' + behind.length +
+      ' 个分区构成身后球，最深的是 ' + behind[0].label + '（比他靠后 ' + behind[0].back +
+      ' 米、距他 ' + behind[0].dist + ' 米，难度 ' + behind[0].diff + '）。');
+  } else {
+    var maxBack = r2(Math.max.apply(null, zones.map(function (z) { return z.back; })));
+    lines.push('他身前（到网）' + space.toNet + ' 米、身后（到底线）' + space.toBaseline +
+      ' 米，但没有任何落点够得上「身后球」的 ' + BEHIND_TAG_M + ' 米门槛（最深处只靠后 ' + maxBack +
+      ' 米）——前后反转在这个站位上不成立，调动只能靠横向拉开。');
+  }
+
+  if (swing) {
+    lines.push('两拍调动方案：先 ' + swing.from.label + '（' + swing.from.dist + 'm），' +
+      '再 ' + swing.to.label + '（再跑 ' + swing.sep + 'm），累计逼他跑 ' + swing.total +
+      ' 米' + (swing.total > 9 ? '——这个量级在业余单加里足以在两三拍内分出胜负。' : '。'));
+  }
+
+  var geo = byDiff[0], tech = byValue[0];
+  if (geo && tech && geo.zone !== tech.zone) {
+    lines.push('几何与技术的排序不一致：纯几何最难够到的是 ' + geo.label + '（难度 ' + geo.diff +
+      '、距他 ' + geo.dist + ' 米），综合价值最高的却是 ' + tech.label + '（难度 ' + tech.diff +
+      '、弱点强度 ' + tech.weak + '）。' +
+      '差别来自他的技术短板而不是空当——想主打几何就选 ' + geo.label + '，想放大短板就选 ' + tech.label +
+      '，调权重条会直接改写这张表的顺序。');
+  }
+  if (tech) {
+    var overlap = tech.weak > 0.45 && tech.diff >= OPEN_GAP_DIFF;
+    lines.push(overlap
+      ? '综合第一的 ' + tech.label + ' 既是真空当（难度 ' + tech.diff + '）也是他的弱区（强度 ' + tech.weak +
+        '）——几何与短板在这一点上叠加，是最该反复打的落点。'
+      : '综合第一的 ' + tech.label + '（难度 ' + tech.diff + '、弱点强度 ' + tech.weak + '）主要靠' +
+        (tech.weak > 0.45 ? '短板' : '几何') + '取胜，另一项并没有同时成立——能不能打死他取决于他的步伐，不是他的短板。');
+  }
+
+  return {
+    point: p, desc: posDesc(p, zProf), manual: ctx.oppManual, auto: ctx.oppAuto, delta: delta,
+    coverRadius: r2(coverR), insideZones: inside, space: space, zones: zones,
+    byDiff: byDiff, byValue: byValue, open: open, behind: behind,
+    swing: swing, lines: lines
+  };
+}
+
+/* ---------------------------------------------------------------- 主推荐 */
+
+function recommend(input) {
+  var inp = Object.assign({
+    myPos: 'my_MC', landZone: 'my_BR', incoming: 'clear',
+    hitHeight: 'high', arrival: 'active',
+    myStamina: 100, oppStamina: 100, weights: null,
+    oppPosMode: 'auto', oppPos: null
+  }, input || {});
+
+  var me = inp.me || defaultMe();
+  var opp = inp.opp || sampleOpponents()[0];
+  var warnings = [];
+
+  if (!ZONE_META[inp.myPos] || ZONE_META[inp.myPos].side !== 'me') { inp.myPos = 'my_MC'; warnings.push('我方位置无效，已重置为中场中心'); }
+  if (!ZONE_META[inp.landZone] || ZONE_META[inp.landZone].side !== 'me') { inp.landZone = 'my_BR'; warnings.push('来球落点无效，已重置'); }
+
+  var inc = lookup(INCOMING, inp.incoming);
+  var landMeta = ZONE_META[inp.landZone];
+
+  /* 一致性提示 */
+  if (inc.expectDepth !== landMeta.depth) {
+    warnings.push('来球类型「' + inc.name + '」通常落在' + DEPTH_NAME[inc.expectDepth] + '，但你标的是' + DEPTH_NAME[landMeta.depth] + '。计算以你标的落点为准。');
+  }
+  var dMove = dist(zp(inp.myPos), zp(inp.landZone));
+  if (inp.arrival === 'active' && dMove > 4.2) {
+    warnings.push('你需要移动 ' + r2(dMove) + ' 米才能击球，「主动」可能偏乐观，建议改为半被动。');
+  }
+  if (inp.arrival === 'passive' && dMove < 1.2) {
+    warnings.push('移动距离很短却标为「被动」，请确认是否被对方的假动作骗到重心。');
+  }
+  if (inp.hitHeight === 'high' && inc.id === 'smash') warnings.push('接杀球很少能拿到高点，除非对方杀球质量差。');
+  if (inp.hitHeight === 'low' && (inc.id === 'loose' || inc.id === 'liftdef')) warnings.push('对方送来的' + inc.name + '通常是进攻机会，击球点应该是高点——标成低点会让杀球、扑球、点杀全被排除。');
+
+  var zProf = opponentZonesProfile(opp);
+  var ctx = computeContext(inp, zProf);
+  /* 对手站位：默认按来球类型推断，拖动过红色标记则改用手动值 */
+  var resolved = resolveOppPos(inp, inc, warnings);
+  ctx.oppStart = resolved.start;
+  ctx.oppAuto = resolved.auto;
+  ctx.oppManual = resolved.manual;
+  ctx.oppHitY = inc.oppY;
+  ctx.incoming = inc;
+  ctx.dMove = r2(dMove);
+  ctx.posInfo = analyzeOppPosition(inp, ctx, opp, zProf);
+
+  var hitP = zp(inp.landZone);
+  var cands = [];
+  var rejected = [];
+
+  SHOTS.forEach(function (shot) {
+    var f = feasible(shot, inp);
+    if (!f.ok) { rejected.push({ shot: shot.name, why: f.why }); return; }
+    var targets = genTargets(shot, inp.landZone);
+    targets.forEach(function (tz) { scoreCandidate(shot, tz, inp, me, opp, ctx, cands); });
+  });
+
+  cands.sort(function (a, b) { return b.score - a.score; });
+
+  /* 同一球路只保留最佳落点用于主榜，其余落点作为备选附在里面 */
+  var seen = {}, ranked = [];
+  cands.forEach(function (c) {
+    if (!seen[c.shot.id]) { seen[c.shot.id] = c; ranked.push(c); }
+    else { seen[c.shot.id].altTargets.push({ zone: c.targetZone, label: ZONE_META[c.targetZone].label, score: c.score }); }
+  });
+
+  var best = ranked.length ? ranked[0].score : 0;
+  var worst = ranked.length ? ranked[ranked.length - 1].score : 0;
+
+  return {
+    input: inp, context: ctx, warnings: warnings,
+    hitPoint: hitP, oppStart: ctx.oppStart, posInfo: ctx.posInfo,
+    zProf: zProf,
+    candidates: ranked, allCandidates: cands, rejected: rejected,
+    scoreRange: { best: r2(best), worst: r2(worst) },
+    strategy: describeStrategy(ctx, me, opp)
+  };
+}
+
+function scoreCandidate(shot, targetZone, inp, me, opp, ctx, out) {
+  var w = ctx.weights;
+  var zm = ZONE_META[targetZone];
+  var fe = [];   /* 打分明细 */
+
+  /* 1. 落点调动性 */
+  var rd = reachDetail(ctx, opp, targetZone, shot);
+  var reach = rd.diff;
+  fe.push({ key: 'oppReach', label: '落点调动性', f: r2(reach), w: r2(w.oppReach), c: r2(reach * w.oppReach),
+    text: reachText(reach, targetZone, shot, opp, rd) });
+
+  /* 2/3. 弱点与强点 */
+  var wk = ctx.zProf.weak[targetZone] || 0;
+  var st = ctx.zProf.strong[targetZone] || 0;
+  var fWeak = clamp(wk - st, -1, 1);
+  fe.push({ key: 'weak', label: '弱点命中', f: r2(fWeak), w: r2(w.weak), c: r2(Math.max(0, fWeak) * w.weak),
+    text: wk > 0.05 ? '「' + zm.label + '」是对方弱区（强度 ' + r2(wk) + '）' : '' });
+  fe.push({ key: 'strong', label: '强点回避', f: r2(-st), w: r2(w.strong), c: r2(-st * w.strong),
+    text: st > 0.05 ? '「' + zm.label + '」是对方强区，送到这里等于给机会（强度 ' + r2(st) + '）' : '' });
+
+  /* 4. 自身成功率 */
+  var ex = execSuccess(ctx, me, shot, inp);
+  var fExec = clamp((ex.success - 0.45) / 0.5, -1, 1);
+  fe.push({ key: 'exec', label: '自身成功率', f: r2(fExec), w: r2(w.exec), c: r2(fExec * w.exec),
+    text: '成功率约 ' + Math.round(ex.success * 100) + '%（击球点' + lookup(HIT_HEIGHTS, inp.hitHeight).name + ' · ' + lookup(ARRIVALS, inp.arrival).name + ' · 你的' + skillName(shot.skill) + ' ' + Math.round((me.skills[shot.skill] || 0.7) * 100) + '）' });
+
+  /* 5. 我的移动与回位代价 */
+  var en = energyModel(ctx, me, opp, shot, inp, targetZone);
+  var fMyCost = -clamp(en.myMove / 11, 0, 1);
+  fe.push({ key: 'myCost', label: '我的移动代价', f: r2(fMyCost), w: r2(w.myCost), c: r2(fMyCost * w.myCost),
+    text: '跑动 ' + r2(en.dToBall) + 'm 击球 + ' + r2(en.dRecover) + 'm 回位' + (shot.rush ? '，且这一拍要求跟进' : '') });
+
+  /* 6. 体力消耗差 */
+  fe.push({ key: 'stamina', label: '体力消耗差', f: r2(en.f), w: r2(w.stamina), c: r2(en.f * w.stamina),
+    text: '预计我耗 ' + en.myE + ' / 对方耗 ' + en.oppE + (en.diff > 0.15 ? '，这一拍在消耗对方' : (en.diff < -0.15 ? '，这一拍反而更耗我自己' : '，消耗接近')) });
+
+  /* 7. 进攻连续性 */
+  var fAttack = clamp(shot.attack, -1, 1);
+  if (shot.family === 'lift' || shot.id === 'net_lift' || shot.id === 'def_lift') {
+    if (has(opp, 'loves_smash') || has(opp, 'power_back')) fAttack -= 0.25;
+    if (has(opp, 'weak_back') || has(opp, 'bad_net')) fAttack += 0.15;
+  }
+  if ((shot.id === 'net_play' || shot.id === 'net_spin') && has(opp, 'net_rusher')) fAttack -= 0.20;
+  if (shot.family === 'drop' && has(opp, 'bad_net')) fAttack += 0.20;
+  if (shot.family === 'drop' && has(opp, 'good_net')) fAttack -= 0.12;
+  if (shot.family === 'clear' && has(opp, 'power_back') && inp.hitHeight !== 'low') fAttack -= 0.15;
+  fAttack = clamp(fAttack, -1, 1);
+  fe.push({ key: 'attack', label: '进攻连续性', f: r2(fAttack), w: r2(w.attack), c: r2(fAttack * w.attack),
+    text: shot.note });
+
+  /* 8. 回合长短策略 */
+  var fRally = clamp(shot.rallyLen * ctx.dirRally, -1, 1);
+  fe.push({ key: 'rally', label: '回合长短策略', f: r2(fRally), w: r2(w.rally), c: r2(fRally * w.rally),
+    text: ctx.dirRally > 0.15 ? ('当前策略是拉长回合消耗对方（策略强度 ' + r2(ctx.dirRally) + '），此球倾向' + (shot.rallyLen > 0 ? '拉长，契合' : '缩短，不契合'))
+        : ctx.dirRally < -0.15 ? ('当前策略是尽快结束回合（策略强度 ' + r2(ctx.dirRally) + '），此球倾向' + (shot.rallyLen < 0 ? '缩短，契合' : '拉长，不契合'))
+        : '当前没有明确的长短回合倾向' });
+
+  /* 9. 失误代价 */
+  var fRisk = -clamp(ex.failRisk * shot.commit * 2.2, 0, 1);
+  fe.push({ key: 'risk', label: '失误代价', f: r2(fRisk), w: r2(w.risk), c: r2(fRisk * w.risk),
+    text: '失误概率约 ' + Math.round(ex.failRisk * 100) + '%' + (shot.commit > 1.15 ? '，且失手后你会失去位置' : '') });
+
+  var sumW = 0, sumC = 0;
+  fe.forEach(function (e) { sumW += Math.abs(e.w); sumC += e.c; });
+  var raw = sumW > 0 ? sumC / sumW : 0;
+  var score = Math.round(clamp(50 + 45 * raw, 2, 98));
+
+  var pos = fe.filter(function (e) { return e.c > 0.02 && e.text; }).sort(function (a, b) { return b.c - a.c; });
+  var neg = fe.filter(function (e) { return e.c < -0.02 && e.text; }).sort(function (a, b) { return a.c - b.c; });
+
+  out.push({
+    shot: shot, shotId: shot.id, shotName: shot.name,
+    targetZone: targetZone, targetLabel: zm.label,
+    targetPoint: zp(targetZone),
+    isCross: !!shot.cross, isBody: !!shot.body,
+    raw: r2(raw), score: score,
+    features: fe,
+    pros: pos.slice(0, 3).map(function (e) { return e.text; }),
+    cons: neg.slice(0, 2).map(function (e) { return e.text; }),
+    energy: en,
+    exec: ex,
+    recovery: shot.recovery,
+    recoveryPoint: recoveryPointOf(shot),
+    recoveryLabel: ZONE_META[shot.recovery].label + (shot.followIn ? '（并向网前跟进约 ' + shot.followIn + 'm）' : ''),
+    reply: likelyReply(shot, targetZone, opp, ctx),
+    altTargets: []
+  });
+}
+
+function skillName(k) {
+  return ({ net: '网前技术', back: '后场技术', mid: '中场技术', smash: '下压能力', defense: '防守能力' })[k] || k;
+}
+
+function reachText(reach, zone, shot, opp, rd) {
+  var zm = ZONE_META[zone];
+  if (shot.body) {
+    var bt = lookup(BODY_TYPES, opp.body);
+    return '追身球，对方' + bt.name + (bt.bodyVuln > 1.15 ? '展不开拍，威胁大' : '重心低、处理追身球从容');
+  }
+  var dTxt = '（距他 ' + r2(rd.d) + 'm' + (rd.behind ? '·身后' : '') + '）';
+  var tail = rd.behind ? '，而且在他身后要转体倒步去接' : '';
+  if (reach > 0.72) return '「' + zm.label + '」' + dTxt + '对方几乎够不到，是明显的空当';
+  if (reach > 0.5) return '「' + zm.label + '」' + dTxt + '需要对方大范围移动' + (shot.cross ? '，且是斜线变向' : '') + tail;
+  if (reach > 0.3) return '「' + zm.label + '」' + dTxt + '对方需要移动但能够到' + tail;
+  return '「' + zm.label + '」离对方当前位置很近（' + r2(rd.d) + 'm），几乎不构成调动';
+}
+
+function describeStrategy(ctx, me, opp) {
+  var parts = [];
+  var myP = Math.round(ctx.myS * 100), opP = Math.round(ctx.oppS * 100);
+  if (ctx.myS > 0.7 && ctx.oppS > 0.7) parts.push('双方体力都还充足，此时应打结构性弱点而不是消耗战，落点选择比回合长度更重要');
+  else if (ctx.myS > 0.65 && ctx.oppS <= 0.45) parts.push('对方体力只剩 ' + opP + '%，你还有 ' + myP + '%——现在是消耗窗口：拉开落点、增加回合拍数，别用低成功率的强攻提前赌');
+  else if (ctx.myS <= 0.4 && ctx.oppS > 0.55) parts.push('你体力 ' + myP + '% 而对方 ' + opP + '%，不能再磨：优先选省力的球（网前、平抽），并寻找一拍结束回合的机会');
+  else if (ctx.myS <= 0.4 && ctx.oppS <= 0.4) parts.push('双方都到极限了，胜负取决于失误率——选成功率最高的球，把风险留给对方');
+  else parts.push('体力接近（你 ' + myP + '% / 对方 ' + opP + '%），按正常战术打，注意别在均势里做无谓的大范围跑动');
+
+  if (ctx.dirRally > 0.35) parts.push('回合策略：拉长（系数 ' + ctx.dirRally + '）');
+  else if (ctx.dirRally < -0.35) parts.push('回合策略：缩短（系数 ' + ctx.dirRally + '）');
+  else parts.push('回合策略：中性（系数 ' + ctx.dirRally + '）');
+
+  var btO = lookup(BODY_TYPES, opp.body);
+  var pi = ctx.posInfo;
+  if (pi) {
+    parts.push('对手站位：' + pi.desc + (pi.manual ? '（手动标记）' : '（按来球推断）') +
+      ' · 身前 ' + pi.space.toNet + 'm / 身后 ' + pi.space.toBaseline +
+      'm · 舒适触及半径 ' + pi.coverRadius + 'm · ' +
+      (pi.open.length ? '空当 ' + pi.open.length + ' 个' : '无明显空当'));
+  }
+  parts.push('对方体型「' + btO.name + '」：' + btO.note);
+  var wk = Object.keys(ctx.zProf.weak).sort(function (a, b) { return ctx.zProf.weak[b] - ctx.zProf.weak[a]; }).slice(0, 3);
+  if (wk.length) parts.push('对方弱区：' + wk.map(function (z) { return ZONE_META[z].label.replace('对方', ''); }).join('、'));
+  var sg = Object.keys(ctx.zProf.strong).sort(function (a, b) { return ctx.zProf.strong[b] - ctx.zProf.strong[a]; }).slice(0, 3);
+  if (sg.length) parts.push('对方强区（别送）：' + sg.map(function (z) { return ZONE_META[z].label.replace('对方', ''); }).join('、'));
+  return parts;
+}
+
+/* ---------------------------------------------------------------- 导出 */
+
+return {
+  version: '0.2.0',
+  COURT: COURT, ZONES: ZONES, MY_ZONES: MY_ZONES, OP_ZONES: OP_ZONES, ZONE_META: ZONE_META,
+  DEPTH_NAME: DEPTH_NAME, WIDTH_NAME: WIDTH_NAME,
+  HIT_HEIGHTS: HIT_HEIGHTS, ARRIVALS: ARRIVALS, INCOMING: INCOMING,
+  BODY_TYPES: BODY_TYPES, TRAITS: TRAITS, COURT_PREFS: COURT_PREFS, LEVELS: LEVELS,
+  SHOTS: SHOTS,
+  DEFAULT_WEIGHTS: DEFAULT_WEIGHTS, WEIGHT_LABELS: WEIGHT_LABELS,
+  /* 标定常量集中导出，供测试与外部调参照 */
+  CALIB: {
+    SPEED_SCALE: SPEED_SCALE, REACH_TIME_REF: REACH_TIME_REF,
+    OPP_RECOVER_BLEND: OPP_RECOVER_BLEND, OPP_BASE_Y: OPP_BASE_Y,
+    BEHIND_MIN_DY: BEHIND_MIN_DY, BEHIND_RAMP: BEHIND_RAMP,
+    BEHIND_TAG_M: BEHIND_TAG_M, BEHIND_PEN: BEHIND_PEN,
+    BEHIND_PEN_LONG_REACH: BEHIND_PEN_LONG_REACH, OPEN_GAP_DIFF: OPEN_GAP_DIFF
+  },
+  defaultMe: defaultMe, defaultSkills: defaultSkills, sampleOpponents: sampleOpponents,
+  opponentZonesProfile: opponentZonesProfile,
+  recommend: recommend,
+  analyzeOppPosition: analyzeOppPosition, reachDetail: reachDetail, isBehind: isBehind,
+  /* 工具，界面层会用 */
+  zp: zp, dist: dist, clamp: clamp, lookup: lookup, backhandWidth: backhandWidth, skillName: skillName,
+  recoveryPointOf: recoveryPointOf
+};
+
+});
+
+</script>
+<script>
+/* ==========================================================================
+   羽毛球单打战术助手 · 界面层
+   依赖同文件内联的 BadmintonEngine。所有状态存 localStorage。
+   ========================================================================== */
+(function () {
+'use strict';
+
+var E = window.BadmintonEngine;
+if (!E) { document.body.innerHTML = '<p style="padding:24px">引擎未加载。</p>'; return; }
+
+var LS_KEY = 'bmt_v0';
+
+/* ---------------------------------------------------------------- 几何 */
+/* 横向球场：我方底线在左，对方底线在右，球网竖直居中。
+   世界坐标 x = 宽度轴（-2.59 = 我方左），y = 长度轴（0 = 我方底线）。
+   屏幕：y→水平，x→垂直，我方左侧落在屏幕上方。 */
+var GEO = { s: 328 / 13.4, ml: 16, mt: 16, vbW: 360, vbH: 159 };
+var HALF_D = (6.7 / 3) / 2, HALF_W = (5.18 / 3) / 2;
+
+function PX(wy) { return GEO.ml + wy * GEO.s; }
+function PY(wx) { return GEO.mt + (wx + 2.59) * GEO.s; }
+function n(v) { return Math.round(v * 100) / 100; }
+
+function zoneRect(z) {
+  var m = E.ZONE_META[z];
+  return {
+    x: n(PX(m.y - HALF_D)), y: n(PY(m.x - HALF_W)),
+    w: n(HALF_D * 2 * GEO.s), h: n(HALF_W * 2 * GEO.s)
+  };
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+  });
+}
+
+/* 来球类型 → 典型击球点与到位程度 */
+var AUTO = {
+  clear:   { h: 'high', a: 'active' },
+  drivclr: { h: 'high', a: 'active' },
+  drop:    { h: 'mid',  a: 'semi' },
+  smash:   { h: 'low',  a: 'passive' },
+  drive:   { h: 'mid',  a: 'semi' },
+  net:     { h: 'low',  a: 'semi' },
+  loose:   { h: 'high', a: 'active' },
+  liftdef: { h: 'high', a: 'active' }
+};
+
+/* ---------------------------------------------------------------- 状态 */
+/* 「局面」输入的初始值，重置全部时要回到这一份，所以单独抽出来避免两处不一致 */
+function defaultInp() {
+  return {
+    myPos: 'my_MC', landZone: 'my_BR', incoming: 'clear',
+    hitHeight: 'high', arrival: 'active', myStamina: 100, oppStamina: 100,
+    /* 对手站位：auto = 由来球类型推断；拖过红点即切到 manual 并记下连续坐标 */
+    oppPosMode: 'auto', oppPos: null
+  };
+}
+
+var state = {
+  me: E.defaultMe(),
+  opponents: E.sampleOpponents(),
+  oppId: null,
+  inp: defaultInp(),
+  weights: Object.assign({}, E.DEFAULT_WEIGHTS),
+  autoFit: true,
+  showZones: true,
+  showCover: true,
+  activeMarker: 'landZone',
+  chosen: {},        /* shotId -> 用户手动选定的落点 */
+  gapPeek: null,     /* 空当榜上点选的预览落点，只影响球场显示，不入库 */
+  showAll: false,
+  editing: null      /* 'me' | 对手 id */
+};
+
+function currentOpp() {
+  for (var i = 0; i < state.opponents.length; i++) if (state.opponents[i].id === state.oppId) return state.opponents[i];
+  return state.opponents[0] || null;
+}
+
+function save() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      v: 0, me: state.me, opponents: state.opponents, oppId: state.oppId,
+      weights: state.weights, inp: state.inp,
+      autoFit: state.autoFit, showZones: state.showZones, showCover: state.showCover
+    }));
+  } catch (e) { toast('保存失败：' + e.message); }
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d.me) state.me = Object.assign(E.defaultMe(), d.me);
+      if (d.opponents && d.opponents.length) state.opponents = d.opponents;
+      if (d.oppId) state.oppId = d.oppId;
+      if (d.weights) state.weights = Object.assign({}, E.DEFAULT_WEIGHTS, d.weights);
+      if (d.inp) state.inp = Object.assign(state.inp, d.inp);
+      if (typeof d.autoFit === 'boolean') state.autoFit = d.autoFit;
+      if (typeof d.showZones === 'boolean') state.showZones = d.showZones;
+      if (typeof d.showCover === 'boolean') state.showCover = d.showCover;
+      /* 站位是连续坐标，存档里可能是旧版本没有的字段、也可能是被手改坏的 JSON */
+      var p = state.inp.oppPos;
+      if (!p || !isFinite(p.x) || !isFinite(p.y)) {
+        state.inp.oppPos = null;
+        state.inp.oppPosMode = 'auto';
+      }
+    }
+  } catch (e) { /* 数据损坏则用默认值 */ }
+  /* 无论有没有存档都要校正一次：currentOpp() 自带「取第一个」的兜底，
+     所以 oppId 为 null 时推荐照常出、看不出异常，但下拉框不会高亮任何一项，
+     编辑抽屉更会因为 state.editing 匹配不到档案而弹出一个空白面板 */
+  var known = state.opponents.some(function (o) { return o.id === state.oppId; });
+  if (!known) state.oppId = state.opponents.length ? state.opponents[0].id : null;
+}
+
+/* ---------------------------------------------------------------- 球场 SVG */
+function courtSVG(o) {
+  o = o || {};
+  var p = [];
+  p.push('<svg class="court" viewBox="0 0 ' + GEO.vbW + ' ' + GEO.vbH + '" xmlns="http://www.w3.org/2000/svg"' +
+         (o.interactive ? ' data-role="court"' : '') + '>');
+
+  /* 场地底色 */
+  p.push('<rect class="surf" x="' + PX(0) + '" y="' + PY(-2.59) + '" width="' + n(13.4 * GEO.s) + '" height="' + n(5.18 * GEO.s) + '" rx="3"/>');
+
+  /* 分区着色 */
+  function tint(z, cls) {
+    var r = zoneRect(z);
+    p.push('<rect class="' + cls + '" x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '"/>');
+  }
+  if (o.weak) Object.keys(o.weak).forEach(function (z) { tint(z, 'weak'); });
+  if (o.strong) Object.keys(o.strong).forEach(function (z) { tint(z, 'strong'); });
+  if (o.targets) o.targets.forEach(function (t) { tint(t.zone, t.best ? 'target-best' : 'target'); });
+
+  /* 分区网格 */
+  if (o.showZones !== false) {
+    [2.2333, 4.4667, 8.9333, 11.1667].forEach(function (d) {
+      p.push('<line class="ln-thin" x1="' + n(PX(d)) + '" y1="' + n(PY(-2.59)) + '" x2="' + n(PX(d)) + '" y2="' + n(PY(2.59)) + '"/>');
+    });
+    [-0.8633, 0.8633].forEach(function (w) {
+      p.push('<line class="ln-thin" x1="' + n(PX(0)) + '" y1="' + n(PY(w)) + '" x2="' + n(PX(13.4)) + '" y2="' + n(PY(w)) + '"/>');
+    });
+  }
+
+  /* 正式场地线 */
+  p.push('<rect class="ln" x="' + n(PX(0)) + '" y="' + n(PY(-2.59)) + '" width="' + n(13.4 * GEO.s) + '" height="' + n(5.18 * GEO.s) + '"/>');
+  [1.98, 13.4 - 1.98].forEach(function (d) {
+    p.push('<line class="ln" x1="' + n(PX(d)) + '" y1="' + n(PY(-2.59)) + '" x2="' + n(PX(d)) + '" y2="' + n(PY(2.59)) + '"/>');
+  });
+  p.push('<line class="ln" x1="' + n(PX(0)) + '" y1="' + n(PY(0)) + '" x2="' + n(PX(1.98)) + '" y2="' + n(PY(0)) + '"/>');
+  p.push('<line class="ln" x1="' + n(PX(11.42)) + '" y1="' + n(PY(0)) + '" x2="' + n(PX(13.4)) + '" y2="' + n(PY(0)) + '"/>');
+  p.push('<line class="net" x1="' + n(PX(6.7)) + '" y1="' + n(PY(-2.59) - 3) + '" x2="' + n(PX(6.7)) + '" y2="' + n(PY(2.59) + 3) + '"/>');
+
+  /* 边线标注 */
+  if (!o.compact) {
+    var bh = o.oppLeftHanded ? '左' : '右', fh = o.oppLeftHanded ? '右' : '左';
+    p.push('<text class="side-lbl" x="' + n(PX(10.05)) + '" y="' + n(PY(-2.59) - 4) + '">屏幕上方 = 我方左侧 · 对方' + fh + '（正手）</text>');
+    p.push('<text class="side-lbl" x="' + n(PX(10.05)) + '" y="' + n(PY(2.59) + 11) + '">屏幕下方 = 我方右侧 · 对方' + bh + '（反手）</text>');
+    p.push('<text class="side-lbl" x="' + n(PX(3.35)) + '" y="' + n(PY(-2.59) - 4) + '" opacity=".45">我方半场</text>');
+    p.push('<text class="side-lbl" x="' + n(PX(3.35)) + '" y="' + n(PY(2.59) + 11) + '" opacity=".45">输入区</text>');
+  }
+
+  /* 分区名（交互时用） */
+  if (o.interactive && o.showZones !== false) {
+    E.MY_ZONES.forEach(function (z) {
+      var m = E.ZONE_META[z], r = zoneRect(z);
+      p.push('<text class="zlbl" x="' + n(r.x + r.w / 2) + '" y="' + n(r.y + r.h / 2 + 2.6) + '">' +
+             E.DEPTH_NAME[m.depth] + E.WIDTH_NAME[m.width] + '</text>');
+    });
+  }
+
+  /* 对手舒适触及圈：裁剪到对方半场，否则会误读成他能跨网接球 */
+  if (o.cover && o.oppStart) {
+    var cid = 'oppCoverClip';
+    p.push('<defs><clipPath id="' + cid + '"><rect x="' + n(PX(6.7)) + '" y="' + n(PY(-2.59)) +
+           '" width="' + n(6.7 * GEO.s) + '" height="' + n(5.18 * GEO.s) + '"/></clipPath></defs>');
+    var ccx = n(PX(o.oppStart.y)), ccy = n(PY(o.oppStart.x)), cr = n(o.cover * GEO.s);
+    p.push('<circle class="cover" clip-path="url(#' + cid + ')" cx="' + ccx + '" cy="' + ccy + '" r="' + cr + '"/>');
+    if (ccx + cr < n(PX(13.4)) - 14) {
+      p.push('<text class="cover-lbl" x="' + n(ccx + cr * 0.58) + '" y="' + n(ccy - 3.5) + '">触及 ' + o.cover + 'm</text>');
+    }
+  }
+
+  /* 球路线 */
+  function line(a, b, cls) {
+    if (!a || !b) return;
+    p.push('<path class="' + cls + '" d="M' + n(PX(a.y)) + ' ' + n(PY(a.x)) + ' L' + n(PX(b.y)) + ' ' + n(PY(b.x)) + '"/>');
+  }
+  if (o.showPath) {
+    if (o.oppStart && o.targetPoint) line(o.oppStart, o.targetPoint, 'path-opp');
+    if (o.hitPoint && o.targetPoint) line(o.hitPoint, o.targetPoint, 'path');
+  }
+
+  /* 标记点 */
+  function mk(pt, cls, label, key, r) {
+    if (!pt) return;
+    var cx = n(PX(pt.y)), cy = n(PY(pt.x));
+    var act = (key && o.activeMarker === key) ? ' active' : '';
+    p.push('<circle class="mk ' + cls + act + '" cx="' + cx + '" cy="' + cy + '" r="' + (r || 5.6) + '"' +
+           (key ? ' data-mk="' + key + '"' : '') + '/>');
+    if (label && !o.compact) {
+      p.push('<text class="mk-lbl" x="' + cx + '" y="' + n(cy - (r || 5.6) - 3) + '">' + esc(label) + '</text>');
+    }
+  }
+  /* 手动摆放站位时，用空心圈留住「按来球推断」的位置，好比较自己判断偏了多少 */
+  if (o.oppAuto && o.oppManual && !o.compact) {
+    p.push('<circle class="mk-ghost" cx="' + n(PX(o.oppAuto.y)) + '" cy="' + n(PY(o.oppAuto.x)) + '" r="5"/>');
+  }
+  if (o.recoveryPoint) mk(o.recoveryPoint, 'mk-rec', o.compact ? '' : '回位', null, 4.6);
+  if (o.oppStart) mk(o.oppStart, 'mk-opp', o.compact ? '' : '对手', o.interactive ? 'oppPos' : null, 6);
+  if (o.targetPoint) mk(o.targetPoint, 'mk-ball', o.compact ? '' : '落点', null, 4.8);
+  if (o.hitPoint && o.showHit) mk(o.hitPoint, 'mk-me', o.compact ? '' : '击球', null, 4.8);
+  if (o.myPos) mk(E.zp(o.myPos), 'mk-me', o.compact ? '' : '我', 'myPos', 6);
+  if (o.landZone) mk(E.zp(o.landZone), 'mk-ball', o.compact ? '' : '球', 'landZone', 6);
+
+  p.push('</svg>');
+  return p.join('');
+}
+
+/* ---------------------------------------------------------------- 渲染 */
+var $ = function (s) { return document.querySelector(s); };
+function el(id) { return document.getElementById(id); }
+
+function renderHeader() {
+  el('oppCount').textContent = state.opponents.length + ' 个对手档案';
+}
+
+function renderOppSelect() {
+  var s = el('oppSelect');
+  s.innerHTML = state.opponents.map(function (o) {
+    return '<option value="' + esc(o.id) + '"' + (o.id === state.oppId ? ' selected' : '') + '>' + esc(o.name) + '</option>';
+  }).join('');
+  var o = currentOpp();
+  if (o) {
+    var lv = E.lookup(E.LEVELS, o.level), bt = E.lookup(E.BODY_TYPES, o.body), cp = E.lookup(E.COURT_PREFS, o.courtPref);
+    var tr = (o.traits || []).map(function (t) {
+      var d = E.lookup(E.TRAITS, t); return d.name;
+    }).join(' · ') || '无标签';
+    el('oppSummary').innerHTML =
+      '<b>' + esc(lv.name) + '</b> · ' + esc(bt.name) + ' · ' + esc(cp.name) +
+      '<div class="desc">' + esc(tr) + '</div>' +
+      (o.note ? '<div class="desc" style="color:var(--txt3)">' + esc(o.note) + '</div>' : '');
+  }
+}
+
+/* 抽屉里改了档案就要同步顶部摘要，否则推荐已经按新标签算了、上面的标签却还是旧的 */
+function syncProfileHeader() { renderOppSelect(); renderHeader(); }
+
+function chipHTML(list, cur, attr, extraCls) {
+  return list.map(function (it) {
+    var on = it.id === cur ? ' on' : '';
+    var cls = extraCls && extraCls[it.id] ? ' ' + extraCls[it.id] : '';
+    return '<span class="chip' + on + cls + '" data-' + attr + '="' + it.id + '">' + esc(it.name) + '</span>';
+  }).join('');
+}
+
+function renderInputs() {
+  el('incomingChips').innerHTML = chipHTML(E.INCOMING, state.inp.incoming, 'incoming');
+  el('heightChips').innerHTML = chipHTML(E.HIT_HEIGHTS, state.inp.hitHeight, 'hitHeight');
+  el('arrivalChips').innerHTML = chipHTML(E.ARRIVALS, state.inp.arrival, 'arrival');
+  el('incDesc').textContent = E.lookup(E.INCOMING, state.inp.incoming).desc;
+  el('heightDesc').textContent = E.lookup(E.HIT_HEIGHTS, state.inp.hitHeight).desc;
+  el('arrivalDesc').textContent = E.lookup(E.ARRIVALS, state.inp.arrival).desc;
+  el('stamMe').value = state.inp.myStamina;
+  el('stamOpp').value = state.inp.oppStamina;
+  el('stamMeVal').textContent = state.inp.myStamina + '%';
+  el('stamOppVal').textContent = state.inp.oppStamina + '%';
+  el('stamMeVal').style.color = state.inp.myStamina < 35 ? 'var(--bad)' : (state.inp.myStamina < 65 ? 'var(--warn)' : 'var(--good)');
+  el('stamOppVal').style.color = state.inp.oppStamina < 35 ? 'var(--bad)' : (state.inp.oppStamina < 65 ? 'var(--warn)' : 'var(--good)');
+  el('autoFit').checked = state.autoFit;
+  el('showZones').checked = state.showZones;
+  el('showCover').checked = state.showCover;
+  renderMarkerLegend();
+}
+
+function renderMarkerLegend() {
+  var a = state.activeMarker;
+  var pi = lastResult ? lastResult.posInfo : null;
+  var oppTxt = pi ? pi.desc + (pi.manual ? '·手动' : '·推断') : '';
+  el('mkLegend').innerHTML =
+    '<span class="chip' + (a === 'myPos' ? ' on' : '') + '" data-marker="myPos">' +
+      '<i class="dot" style="background:var(--accent)"></i>① 我的位置 · ' + E.ZONE_META[state.inp.myPos].label.replace('我方', '') + '</span>' +
+    '<span class="chip' + (a === 'landZone' ? ' on warn' : '') + '" data-marker="landZone">' +
+      '<i class="dot" style="background:var(--warn)"></i>② 来球落点 · ' + E.ZONE_META[state.inp.landZone].label.replace('我方', '') + '</span>' +
+    '<span class="chip' + (a === 'oppPos' ? ' on' : '') + '" data-marker="oppPos" style="border-color:#5d2f33">' +
+      '<i class="dot" style="background:var(--bad)"></i>③ 对手位置 · ' + esc(oppTxt) + '</span>';
+}
+
+var lastResult = null;
+
+function renderCourtInput() {
+  var opp = currentOpp();
+  var zp2 = opp ? E.opponentZonesProfile(opp) : { weak: {}, strong: {} };
+  var best = lastResult && lastResult.candidates[0] ? pickTarget(lastResult.candidates[0]) : null;
+  var pi = lastResult ? lastResult.posInfo : null;
+  var targets = best ? [{ zone: best.zone, best: true }] : [];
+  if (state.gapPeek && (!best || state.gapPeek !== best.zone)) targets.push({ zone: state.gapPeek });
+  el('courtInput').innerHTML = courtSVG({
+    interactive: true, showZones: state.showZones,
+    myPos: state.inp.myPos, landZone: state.inp.landZone,
+    activeMarker: state.activeMarker,
+    weak: state.showZones ? zp2.weak : null,
+    strong: state.showZones ? zp2.strong : null,
+    targets: targets,
+    oppStart: pi ? pi.point : null,
+    oppAuto: pi ? pi.auto : null,
+    oppManual: pi ? pi.manual : false,
+    cover: state.showCover && pi ? pi.coverRadius : null,
+    oppLeftHanded: !!(opp && opp.traits && opp.traits.indexOf('left_handed') >= 0)
+  });
+  bindCourtDrag();
+}
+
+/* 用户在备选落点里手动选过就用他选的，否则用引擎给的最佳落点 */
+function pickTarget(cand) {
+  var chosen = state.chosen[cand.shotId];
+  if (chosen) {
+    var ok = chosen === cand.targetZone || (cand.altTargets || []).some(function (a) { return a.zone === chosen; });
+    if (ok) {
+      var alt = (cand.altTargets || []).filter(function (a) { return a.zone === chosen; })[0];
+      return { zone: chosen, point: E.zp(chosen), score: alt ? alt.score : cand.score };
+    }
+  }
+  return { zone: cand.targetZone, point: cand.targetPoint, score: cand.score };
+}
+
+/* ---------------------------------------------------------- 对手位置与空当 */
+function renderOppPos() {
+  var pi = lastResult ? lastResult.posInfo : null;
+  el('oppPosModeChips').innerHTML = [
+    { id: 'auto', name: '按来球推断' },
+    { id: 'manual', name: '手动指定' }
+  ].map(function (o) {
+    return '<span class="chip' + (state.inp.oppPosMode === o.id ? ' on' : '') + '" data-opppos="' + o.id + '">' + o.name + '</span>';
+  }).join('');
+
+  el('oppPosLive').textContent = pi
+    ? (pi.manual ? oppPosText(pi.point)
+                 : '当前按来球类型推断为「' + pi.desc + '」。把球场上的红点拖到实际站位，落点排名会跟着变。')
+    : '';
+  if (!pi) { el('oppPosBody').innerHTML = ''; return; }
+
+  var GAP = E.CALIB.OPEN_GAP_DIFF;
+  var stats = [
+    { k: '舒适触及半径', v: pi.coverRadius + 'm', s: '圈内 ' + pi.insideZones + '/9 区' },
+    { k: '身前 · 到网', v: pi.space.toNet + 'm', c: pi.space.toNet < 1.2 ? 'dim' : '' },
+    { k: '身后 · 到底线', v: pi.space.toBaseline + 'm', c: pi.space.toBaseline < 1.2 ? 'dim' : 'hi' },
+    { k: '真空当数', v: pi.open.length + '/9', c: pi.open.length ? 'hi' : 'dim' },
+    { k: '两拍调动', v: pi.swing ? pi.swing.total + 'm' : '—', c: pi.swing && pi.swing.total > 9 ? 'hi' : '' }
+  ];
+  var html = '<div class="pos-stats">' + stats.map(function (s) {
+    return '<div class="s ' + (s.c || '') + '"><b>' + s.v + '</b><span>' + s.k +
+      (s.s ? ' · ' + s.s : '') + '</span></div>';
+  }).join('') + '</div>';
+
+  /* 按综合排序：第一行要和主榜对得上。纯几何最难的那个点单独标出来，
+     因为下面的分析会说它和综合第一不是同一个位置。 */
+  var geoZone = pi.byDiff.length ? pi.byDiff[0].zone : null;
+  html += '<table class="brk"><thead><tr><th>落点</th><th>距他</th><th>难度</th><th>弱点</th><th>综合</th></tr></thead><tbody>' +
+    pi.byValue.map(function (z, i) {
+      return '<tr data-gap="' + z.zone + '"' + (i === 0 ? ' class="total"' : '') + '><td>' + esc(z.label) +
+        (z.behind ? '<span class="tag-behind">身后</span>' : '') +
+        (z.zone === geoZone ? '<span class="tag-geo">几何最难</span>' : '') + '</td>' +
+        '<td class="num">' + z.dist + 'm</td>' +
+        '<td class="' + (z.diff >= GAP ? 'pos' : 'num') + '">' + z.diff + '</td>' +
+        '<td class="num">' + (z.weak > 0.05 ? z.weak : '—') + '</td>' +
+        '<td class="num">' + z.value + '</td></tr>';
+    }).join('') + '</tbody></table>' +
+    '<div class="brk-note">难度 = 对方够到这个点的相对难度（1 = 几乎够不到），已计入身后球要转体倒步的额外代价；' +
+    '弱点 = 档案推导出的该区强度；综合 = 落点相关的三项因子按当前权重加权，与主榜同一口径，' +
+    '所以拖动权重条这张表会跟着重排。<b>点任意一行</b>可在球场上预览那个落点。</div>';
+
+  html += '<ul class="pos-lines">' + pi.lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+  el('oppPosBody').innerHTML = html;
+  renderMarkerLegend();
+}
+
+function scoreColor(s) {
+  if (s >= 70) return 'var(--good)';
+  if (s >= 58) return 'var(--accent)';
+  if (s >= 48) return 'var(--txt2)';
+  return 'var(--txt3)';
+}
+
+function renderResults() {
+  var r = lastResult;
+  var box = el('results');
+  if (!r || !r.candidates.length) { box.innerHTML = '<div class="empty">当前局面没有可行球路，请检查击球点与到位程度。</div>'; return; }
+
+  var list = state.showAll ? r.candidates : r.candidates.slice(0, 5);
+  var html = list.map(function (c, i) {
+    var t = pickTarget(c);
+    var metrics = '<div class="metrics">' +
+      '<span>成功率 <b>' + Math.round(c.exec.success * 100) + '%</b></span>' +
+      '<span>失误 <b>' + Math.round(c.exec.failRisk * 100) + '%</b></span>' +
+      '<span>我耗 <b>' + c.energy.myE + '</b></span>' +
+      '<span>对方耗 <b>' + c.energy.oppE + '</b></span>' +
+      '<span>跑动 <b>' + c.energy.myMove + 'm</b></span>' +
+      '</div>';
+
+    var alts = (c.altTargets || []).length
+      ? '<div class="alts"><span class="lbl">其他落点</span>' +
+        c.altTargets.map(function (a) {
+          return '<button class="alt' + (a.zone === t.zone ? ' on' : '') + '" data-alt="' + c.shotId + ':' + a.zone + '">' +
+                 esc(a.label.replace('对方', '')) + ' ' + a.score + '</button>';
+        }).join('') + '</div>'
+      : '';
+
+    var brk = '<table class="brk"><thead><tr><th>因子</th><th>取值</th><th>权重</th><th>贡献</th></tr></thead><tbody>' +
+        c.features.map(function (f) {
+          var cls = f.c > 0.005 ? 'pos' : (f.c < -0.005 ? 'neg' : 'num');
+          return '<tr><td>' + esc(f.label) + '</td><td class="num">' + f.f + '</td><td class="num">' + f.w +
+                 '</td><td class="' + cls + '">' + (f.c > 0 ? '+' : '') + f.c + '</td></tr>';
+        }).join('') +
+        '<tr class="total"><td>合计（原始分）</td><td class="num"></td><td class="num"></td><td>' + c.raw + '</td></tr>' +
+        '</tbody></table>' +
+        '<div class="brk-note">贡献 = 取值 × 权重，除以权重总和得到原始分，再映射到 50±45 分显示。' +
+        '取值为负的因子表示这一项在扣分。权重可在下方「权重面板」调整，调完立即重算。</div>';
+
+    return '<div class="rec' + (i === 0 ? ' best' : '') + '" data-shot="' + esc(c.shotId) + '">' +
+      '<div class="rec-head">' +
+        '<span class="rec-rank">#' + (i + 1) + '</span>' +
+        '<span class="rec-name">' + esc(c.shotName) + '</span>' +
+        '<span class="rec-target">→ ' + esc(E.ZONE_META[t.zone].label.replace('对方', '')) +
+          (c.isCross ? '（对角）' : '') + (c.isBody ? '（追身）' : '') + '</span>' +
+        '<span class="rec-score" style="color:' + scoreColor(t.score) + '">' + t.score + '<small>/100</small></span>' +
+      '</div>' +
+      '<div class="bar"><i style="width:' + t.score + '%;background:' + scoreColor(t.score) + '"></i></div>' +
+      '<div class="rec-body">' +
+        '<div class="mini">' + courtSVG({
+            compact: true, showZones: true,
+            targets: [{ zone: t.zone, best: true }],
+            targetPoint: t.point,
+            hitPoint: E.zp(state.inp.landZone), showHit: true,
+            oppStart: r.context.oppStart,
+            recoveryPoint: c.recoveryPoint,
+            showPath: true
+          }) + '</div>' +
+        '<div class="txt">' +
+          '<ul class="reasons">' +
+            c.pros.map(function (x) { return '<li class="pro">' + esc(x) + '</li>'; }).join('') +
+            c.cons.map(function (x) { return '<li class="con">' + esc(x) + '</li>'; }).join('') +
+          '</ul>' +
+          metrics +
+          '<div class="reply"><b>对方最可能：</b>' + esc(c.reply) + '</div>' +
+          '<div class="brk-note">回位：' + esc(c.recoveryLabel) + '</div>' +
+        '</div>' +
+      '</div>' +
+      alts +
+      '<details class="fold" data-brk="' + esc(c.shotId) + '">' +
+        '<summary>打分明细（' + c.features.length + ' 个因子）</summary>' +
+        '<div class="fold-body">' + brk + '</div>' +
+      '</details>' +
+    '</div>';
+  }).join('');
+
+  box.innerHTML = html;
+  el('showAllBtn').textContent = state.showAll ? '只看前 5 个' : '显示全部 ' + r.candidates.length + ' 个选项';
+  el('showAllBtn').style.display = r.candidates.length > 5 ? '' : 'none';
+
+  /* 被排除的球路 */
+  var seen = {}, rej = [];
+  r.rejected.forEach(function (x) { if (!seen[x.shot]) { seen[x.shot] = 1; rej.push(x); } });
+  el('rejectedBody').innerHTML = rej.length
+    ? '<table class="brk"><tbody>' + rej.map(function (x) {
+        return '<tr><td style="white-space:nowrap">' + esc(x.shot) + '</td><td style="text-align:left;color:var(--txt3)">' + esc(x.why) + '</td></tr>';
+      }).join('') + '</tbody></table>'
+    : '<div class="empty">没有被排除的球路。</div>';
+  el('rejCount').textContent = rej.length + ' 个球路被硬约束排除';
+}
+
+function renderStrategy() {
+  var r = lastResult;
+  if (!r) return;
+  el('warnings').innerHTML = r.warnings.length
+    ? '<ul class="warns">' + r.warnings.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>' : '';
+  el('strategy').innerHTML = '<ul class="strat">' + r.strategy.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>';
+
+  /* 同一个权重可能被多条情境规则连续命中（乘数连乘），
+     合并成一行显示累计倍率，否则会看到两条同名条目像是重复了 */
+  var mods = (function () {
+    var order = [], byKey = {};
+    r.context.mods.forEach(function (m) {
+      if (!byKey[m.key]) { byKey[m.key] = { label: m.label, factor: 1, whys: [] }; order.push(m.key); }
+      byKey[m.key].factor *= m.factor;
+      byKey[m.key].whys.push(m.why);
+    });
+    return order.map(function (k) {
+      var g = byKey[k];
+      return { label: g.label, factor: Math.round(g.factor * 100) / 100, why: g.whys.join('；') };
+    });
+  })();
+  var notesHtml = r.context.notes.length
+    ? r.context.notes.map(function (x) { return '<div>· ' + esc(x) + '</div>'; }).join('') : '';
+  var modsHtml = mods.length
+    ? '<div style="margin-top:6px">情境自动调整的权重：</div>' + mods.map(function (m) {
+        return '<div>· <b>' + esc(m.label) + '</b> ×' + m.factor + ' — ' + esc(m.why) + '</div>';
+      }).join('')
+    : '<div style="margin-top:6px">· 当前情境没有触发任何权重自动调整</div>';
+  el('ctxMods').innerHTML =
+    '<div>回合策略系数 <b>' + r.context.dirRally + '</b>' +
+    '（+1 拉长消耗 / −1 尽快结束）</div>' +
+    '<div>我方覆盖速度 <b>' + (r.context.mySpeed * 1).toFixed(2) + '</b> · 对方 <b>' + r.context.oppSpeed.toFixed(2) + '</b>（相对系数）</div>' +
+    '<div>你需要移动 <b>' + r.context.dMove + 'm</b> 才能击球</div>' +
+    modsHtml + notesHtml;
+}
+
+function renderWeights() {
+  var keys = Object.keys(E.DEFAULT_WEIGHTS);
+  el('weightPanel').innerHTML = keys.map(function (k) {
+    var v = state.weights[k];
+    return '<div class="skill-row">' +
+      '<span class="k">' + esc(E.WEIGHT_LABELS[k]) + '</span>' +
+      '<input type="range" min="0" max="3" step="0.05" value="' + v + '" data-weight="' + k + '">' +
+      '<span class="v" data-wv="' + k + '">' + v.toFixed(2) + '</span>' +
+      '</div>';
+  }).join('') +
+  '<div class="btn-row" style="margin-top:9px">' +
+    '<button class="mini" data-act="resetWeights">恢复默认权重</button>' +
+  '</div>';
+}
+
+/* ---------------------------------------------------------------- 计算 */
+function recompute() {
+  var opp = currentOpp();
+  if (!opp) { el('results').innerHTML = '<div class="empty">请先建立一个对手档案。</div>'; return; }
+  lastResult = E.recommend({
+    me: state.me, opp: opp,
+    myPos: state.inp.myPos, landZone: state.inp.landZone, incoming: state.inp.incoming,
+    hitHeight: state.inp.hitHeight, arrival: state.inp.arrival,
+    myStamina: state.inp.myStamina, oppStamina: state.inp.oppStamina,
+    weights: state.weights,
+    oppPosMode: state.inp.oppPosMode, oppPos: state.inp.oppPos
+  });
+  state.gapPeek = null;
+  renderResults();
+  renderStrategy();
+  renderOppPos();
+  renderCourtInput();
+  save();
+}
+
+/* ---------------------------------------------------------------- 交互：球场拖拽 */
+var drag = null;
+
+function svgCoord(svg, ev) {
+  var r = svg.getBoundingClientRect();
+  return { x: (ev.clientX - r.left) / r.width * GEO.vbW, y: (ev.clientY - r.top) / r.height * GEO.vbH };
+}
+function worldFromSvg(pt) {
+  return { y: (pt.x - GEO.ml) / GEO.s, x: (pt.y - GEO.mt) / GEO.s - 2.59 };
+}
+function zoneAtMy(w) {
+  var wy = E.clamp(w.y, 0, 6.7), wx = E.clamp(w.x, -2.59, 2.59);
+  var d = wy < 2.2333 ? 'B' : (wy < 4.4667 ? 'M' : 'F');
+  var s = wx < -0.8633 ? 'L' : (wx < 0.8633 ? 'C' : 'R');
+  return 'my_' + d + s;
+}
+/* 对手站位不吸附分区——「他偏了半步」正是这个功能要表达的信息，
+   所以只夹进对方半场，保留连续坐标 */
+function clampOppWorld(w) {
+  return {
+    x: Math.round(E.clamp(w.x, -2.59, 2.59) * 20) / 20,
+    y: Math.round(E.clamp(w.y, 6.7, 13.4) * 20) / 20
+  };
+}
+function nearestOppZone(w) {
+  var best = 'op_MC', bd = 1e9;
+  E.OP_ZONES.forEach(function (z) {
+    var d = E.dist(E.zp(z), w);
+    if (d < bd) { bd = d; best = z; }
+  });
+  return best;
+}
+function oppPosText(p) {
+  var z = E.ZONE_META[nearestOppZone(p)];
+  return '对手 ≈ ' + z.label.replace('对方', '') + ' · 坐标 x=' + p.x.toFixed(2) + ' y=' + p.y.toFixed(2) +
+    '（身前 ' + (p.y - 6.7).toFixed(1) + 'm / 身后 ' + (13.4 - p.y).toFixed(1) + 'm）';
+}
+/* 把某个标记的圆点移到指定世界坐标，只动 DOM 不触发重渲染 */
+function moveMarker(svg, key, w) {
+  var c = svg.querySelector('[data-mk="' + key + '"]');
+  if (!c) return;
+  var isOpp = key === 'oppPos';
+  var q = isOpp ? clampOppWorld(w) : { x: E.clamp(w.x, -2.59, 2.59), y: E.clamp(w.y, 0, 6.7) };
+  var cx = n(PX(q.y)), cy = n(PY(q.x));
+  c.setAttribute('cx', cx);
+  c.setAttribute('cy', cy);
+  /* 标签紧跟在圆点后面，一起走才不会脱节 */
+  var lbl = c.nextElementSibling;
+  if (lbl && lbl.tagName === 'text') {
+    lbl.setAttribute('x', cx);
+    lbl.setAttribute('y', n(cy - (+c.getAttribute('r') || 5.6) - 3));
+  }
+  if (isOpp) el('oppPosLive').textContent = oppPosText(q);
+}
+
+function bindCourtDrag() {
+  var svg = document.querySelector('svg.court[data-role="court"]');
+  if (!svg || svg.__bound) return;
+  svg.__bound = true;
+
+  svg.addEventListener('pointerdown', function (ev) {
+    var pt = svgCoord(svg, ev);
+    var w = worldFromSvg(pt);
+    var hit = ev.target.getAttribute && ev.target.getAttribute('data-mk');
+    /* 直接点在标记上就拖那个点；否则由「点在哪一侧半场」决定，
+       这样不必先选芯片也能拖对手 */
+    var key = hit || (w.y >= 6.7 ? 'oppPos' : (state.activeMarker === 'oppPos' ? 'landZone' : state.activeMarker));
+    drag = { key: key, svg: svg, moved: false, start: pt };
+    state.activeMarker = key;
+    renderMarkerLegend();
+    var circle = svg.querySelector('[data-mk="' + key + '"]');
+    if (circle) circle.classList.add('dragging');
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault();
+  });
+
+  svg.addEventListener('pointermove', function (ev) {
+    if (!drag) return;
+    var pt = svgCoord(svg, ev);
+    if (Math.abs(pt.x - drag.start.x) > 3 || Math.abs(pt.y - drag.start.y) > 3) drag.moved = true;
+    if (drag.moved) moveMarker(drag.svg, drag.key, worldFromSvg(pt));
+    ev.preventDefault();
+  });
+
+  function endDrag(ev) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    var w = worldFromSvg(svgCoord(d.svg, ev));
+
+    if (d.key === 'oppPos') {
+      if (!d.moved) { renderCourtInput(); return; }
+      var p = clampOppWorld(w);
+      state.inp.oppPos = p;
+      state.inp.oppPosMode = 'manual';
+      state.chosen = {};
+      renderInputs(); recompute();
+      toast('对手站位已按你标的位置重算空当');
+      return;
+    }
+
+    var z = zoneAtMy(w);
+    if (state.inp[d.key] !== z) {
+      state.inp[d.key] = z;
+      state.chosen = {};
+      /* 放好「我的位置」后自动切到「来球落点」，减少点击次数 */
+      if (!d.moved && d.key === 'myPos') state.activeMarker = 'landZone';
+      renderInputs();
+      recompute();
+    } else if (d.moved) {
+      renderInputs(); renderCourtInput();
+    } else {
+      renderCourtInput();
+    }
+  }
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', function () { drag = null; renderCourtInput(); });
+}
+
+/* ---------------------------------------------------------------- 交互：事件绑定 */
+function bind() {
+  /* 芯片选择 */
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest ? ev.target.closest('[data-incoming],[data-hitHeight],[data-arrival],[data-marker],[data-alt],[data-act],[data-trait],[data-zone-w],[data-zone-s],[data-opppos],[data-gap]') : null;
+    if (!t) return;
+
+    if (t.dataset.incoming) {
+      state.inp.incoming = t.dataset.incoming;
+      if (state.autoFit && AUTO[t.dataset.incoming]) {
+        state.inp.hitHeight = AUTO[t.dataset.incoming].h;
+        state.inp.arrival = AUTO[t.dataset.incoming].a;
+        toast('已按「' + E.lookup(E.INCOMING, t.dataset.incoming).name + '」自动匹配击球点与到位程度');
+      }
+      state.chosen = {}; renderInputs(); recompute(); return;
+    }
+    if (t.dataset.hitheight) { state.inp.hitHeight = t.dataset.hitheight; state.chosen = {}; renderInputs(); recompute(); return; }
+    if (t.dataset.arrival) { state.inp.arrival = t.dataset.arrival; state.chosen = {}; renderInputs(); recompute(); return; }
+    if (t.dataset.marker) { state.activeMarker = t.dataset.marker; renderMarkerLegend(); renderCourtInput(); return; }
+
+    if (t.dataset.opppos) {
+      state.inp.oppPosMode = t.dataset.opppos;
+      if (t.dataset.opppos === 'manual' && !state.inp.oppPos && lastResult) {
+        /* 还没拖过就先给一个起点，否则切过去的瞬间红点会跳回默认位置 */
+        state.inp.oppPos = { x: lastResult.posInfo.point.x, y: lastResult.posInfo.point.y };
+        toast('已以推断位置为起点，拖动红点即可微调');
+      }
+      state.activeMarker = 'oppPos';
+      state.chosen = {}; renderInputs(); recompute(); return;
+    }
+    if (t.dataset.gap) {
+      var gz = t.dataset.gap;
+      state.gapPeek = state.gapPeek === gz ? null : gz;
+      renderCourtInput(); return;
+    }
+
+    if (t.dataset.alt) {
+      var parts = t.dataset.alt.split(':');
+      state.chosen[parts[0]] = parts[1];
+      renderResults(); renderCourtInput(); return;
+    }
+
+    if (t.dataset.trait !== undefined) {
+      var who = state.editing === 'me' ? state.me : currentOpp();
+      if (!who) return;
+      var id = t.dataset.trait, i = who.traits.indexOf(id);
+      if (i >= 0) who.traits.splice(i, 1); else who.traits.push(id);
+      renderEditor(); syncProfileHeader(); recompute(); return;
+    }
+    if (t.dataset.zoneW !== undefined || t.dataset.zoneS !== undefined) {
+      var o = currentOpp(); if (!o || state.editing === 'me') return;
+      var key = t.dataset.zoneW !== undefined ? 'customWeak' : 'customStrong';
+      var other = key === 'customWeak' ? 'customStrong' : 'customWeak';
+      var zid = t.dataset.zoneW || t.dataset.zoneS;
+      var arr = o[key] || (o[key] = []);
+      var k = arr.indexOf(zid);
+      if (k >= 0) arr.splice(k, 1);
+      else { arr.push(zid); var oa = o[other] || []; var ok2 = oa.indexOf(zid); if (ok2 >= 0) oa.splice(ok2, 1); }
+      renderEditor(); syncProfileHeader(); recompute(); return;
+    }
+
+    var act = t.dataset.act;
+    if (!act) return;
+    if (act === 'editOpp') { state.editing = state.oppId; openDrawer(); return; }
+    if (act === 'editMe') { state.editing = 'me'; openDrawer(); return; }
+    if (act === 'newOpp') { newOpponent(); return; }
+    if (act === 'delOpp') { delOpponent(); return; }
+    if (act === 'closeDrawer') { closeDrawer(); return; }
+    if (act === 'saveProfile') { saveProfile(); return; }
+    if (act === 'resetWeights') { state.weights = Object.assign({}, E.DEFAULT_WEIGHTS); renderWeights(); recompute(); toast('权重已恢复默认'); return; }
+    if (act === 'toggleAll') { state.showAll = !state.showAll; renderResults(); return; }
+    if (act === 'export') { exportData(); return; }
+    if (act === 'import') { el('importFile').click(); return; }
+    if (act === 'doImportText') { importText(el('importText').value); return; }
+    if (act === 'selfTest') { renderSelfTest(); return; }
+    if (act === 'resetAll') {
+      if (confirm('清空所有档案与设置，恢复为初始示例数据？\n（当前局面、体力、权重、显示选项都会一并复位）')) {
+        localStorage.removeItem(LS_KEY);
+        state.me = E.defaultMe(); state.opponents = E.sampleOpponents();
+        state.oppId = state.opponents[0].id; state.weights = Object.assign({}, E.DEFAULT_WEIGHTS);
+        state.chosen = {}; state.gapPeek = null;
+        state.inp = defaultInp();
+        state.autoFit = true; state.showZones = true; state.showCover = true; state.showAll = false;
+        state.activeMarker = 'landZone';
+        if (state.editing) { state.editing = null; el('drawerMask').classList.remove('on'); el('drawer').classList.remove('on'); }
+        renderAll(); toast('已恢复初始数据');
+      }
+      return;
+    }
+    if (act === 'demo') { loadDemo(); return; }
+  });
+
+  /* 体力滑条 */
+  el('stamMe').addEventListener('input', function () {
+    state.inp.myStamina = +this.value; el('stamMeVal').textContent = this.value + '%';
+    el('stamMeVal').style.color = this.value < 35 ? 'var(--bad)' : (this.value < 65 ? 'var(--warn)' : 'var(--good)');
+    recompute();
+  });
+  el('stamOpp').addEventListener('input', function () {
+    state.inp.oppStamina = +this.value; el('stamOppVal').textContent = this.value + '%';
+    el('stamOppVal').style.color = this.value < 35 ? 'var(--bad)' : (this.value < 65 ? 'var(--warn)' : 'var(--good)');
+    recompute();
+  });
+
+  el('oppSelect').addEventListener('change', function () {
+    state.oppId = this.value; state.chosen = {};
+    renderOppSelect(); recompute();
+  });
+  el('autoFit').addEventListener('change', function () { state.autoFit = this.checked; save(); });
+  el('showZones').addEventListener('change', function () { state.showZones = this.checked; renderCourtInput(); save(); });
+  el('showCover').addEventListener('change', function () { state.showCover = this.checked; renderCourtInput(); save(); });
+
+  /* 权重滑条 */
+  el('weightPanel').addEventListener('input', function (ev) {
+    var k = ev.target.dataset && ev.target.dataset.weight;
+    if (!k) return;
+    state.weights[k] = +ev.target.value;
+    var lbl = document.querySelector('[data-wv="' + k + '"]');
+    if (lbl) lbl.textContent = (+ev.target.value).toFixed(2);
+    recompute();
+  });
+
+  el('importFile').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () { importText(String(rd.result)); };
+    rd.readAsText(f);
+    ev.target.value = '';
+  });
+}
+
+/* ---------------------------------------------------------------- 档案编辑 */
+function newOpponent() {
+  var id = 'opp_' + Date.now();
+  var o = {
+    id: id, name: '新对手', isMe: false, level: 'club_mid', body: 'average',
+    traits: [], courtPref: 'allround', staminaMax: 100, drain: 1.0,
+    skills: E.defaultSkills(), customWeak: [], customStrong: [], note: ''
+  };
+  state.opponents.push(o); state.oppId = id; state.editing = id;
+  renderOppSelect(); renderHeader(); openDrawer(); save();
+}
+function delOpponent() {
+  var o = currentOpp(); if (!o) return;
+  if (state.opponents.length <= 1) { toast('至少保留一个对手档案'); return; }
+  if (!confirm('删除「' + o.name + '」？')) return;
+  state.opponents = state.opponents.filter(function (x) { return x.id !== o.id; });
+  state.oppId = state.opponents[0].id; state.editing = null;
+  closeDrawer(); renderOppSelect(); renderHeader(); recompute();
+}
+
+function openDrawer() {
+  /* renderEditor 找不到档案时会自行 closeDrawer 并返回 false，
+     这时绝不能再把 on 加回去，否则会弹出一个空抽屉 */
+  if (!renderEditor()) return;
+  el('drawerMask').classList.add('on');
+  el('drawer').classList.add('on');
+}
+function closeDrawer() {
+  el('drawerMask').classList.remove('on');
+  el('drawer').classList.remove('on');
+  state.editing = null;
+  renderOppSelect(); recompute();
+}
+
+function renderEditor() {
+  var isMe = state.editing === 'me';
+  var p = isMe ? state.me : null;
+  if (!isMe) {
+    for (var i = 0; i < state.opponents.length; i++) if (state.opponents[i].id === state.editing) p = state.opponents[i];
+  }
+  if (!p) { closeDrawer(); return false; }
+
+  el('drawerTitle').textContent = isMe ? '我的档案' : '对手档案 · ' + p.name;
+  el('delOppBtn').style.display = isMe ? 'none' : '';
+
+  var bodyNote = E.lookup(E.BODY_TYPES, p.body).note;
+  var h = '';
+
+  h += '<div class="field"><label>名称</label><input type="text" id="pName" value="' + esc(p.name) + '"></div>';
+  h += '<div class="grid2">' +
+    '<div class="field"><label>水平等级</label><select id="pLevel">' +
+      E.LEVELS.map(function (l) { return '<option value="' + l.id + '"' + (l.id === p.level ? ' selected' : '') + '>' + esc(l.name) + '</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="field"><label>场区偏好</label><select id="pPref">' +
+      E.COURT_PREFS.map(function (l) { return '<option value="' + l.id + '"' + (l.id === p.courtPref ? ' selected' : '') + '>' + esc(l.name) + '</option>'; }).join('') +
+    '</select></div></div>';
+  h += '<div class="field"><label>身高体型</label><select id="pBody">' +
+      E.BODY_TYPES.map(function (l) { return '<option value="' + l.id + '"' + (l.id === p.body ? ' selected' : '') + '>' + esc(l.name) + '</option>'; }).join('') +
+    '</select><div class="desc">' + esc(bodyNote) + '</div></div>';
+
+  h += '<div class="field"><label>技术标签（可多选，直接决定弱区/强区推导）</label><div class="trait-grid">' +
+    E.TRAITS.map(function (t) {
+      var on = (p.traits || []).indexOf(t.id) >= 0 ? ' on ' + t.kind : '';
+      return '<span class="chip' + on + '" data-trait="' + t.id + '" title="' + esc(t.desc) + '">' + esc(t.name) + '</span>';
+    }).join('') + '</div></div>';
+
+  h += '<div class="field"><label>体力消耗速率（越大越容易累）</label><div class="skill-row">' +
+    '<input type="range" id="pDrain" min="0.6" max="1.8" step="0.05" value="' + (p.drain || 1) + '">' +
+    '<span class="v" id="pDrainV">' + (p.drain || 1).toFixed(2) + '</span></div></div>';
+
+  h += '<div class="field"><label>五项技术（0–100，影响该球员打这类球的成功率）</label>' +
+    ['net', 'back', 'mid', 'smash', 'defense'].map(function (k) {
+      var v = Math.round(((p.skills && p.skills[k]) || 0.7) * 100);
+      return '<div class="skill-row"><span class="k">' + E.skillName(k) + '</span>' +
+        '<input type="range" data-skill="' + k + '" min="0" max="100" step="5" value="' + v + '">' +
+        '<span class="v" data-skillv="' + k + '">' + v + '</span></div>';
+    }).join('') + '</div>';
+
+  if (!isMe) {
+    h += '<div class="field"><label>手动指定弱区（覆盖自动推导）</label>' + zonePickerHTML(p, 'customWeak', 'w') + '</div>';
+    h += '<div class="field"><label>手动指定强区（别往这儿打）</label>' + zonePickerHTML(p, 'customStrong', 's') + '</div>';
+  }
+
+  h += '<div class="field"><label>备注</label><textarea id="pNote">' + esc(p.note || '') + '</textarea></div>';
+
+  el('editorBody').innerHTML = h;
+
+  /* 绑定编辑控件 */
+  function bindSel(id, key) {
+    var e = document.getElementById(id);
+    if (e) e.addEventListener('change', function () { p[key] = this.value; if (key === 'body') renderEditor(); syncProfileHeader(); save(); recompute(); });
+  }
+  bindSel('pLevel', 'level'); bindSel('pBody', 'body'); bindSel('pPref', 'courtPref');
+  var nm = el('pName'); if (nm) nm.addEventListener('input', function () { p.name = this.value || '未命名'; syncProfileHeader(); save(); });
+  var nt = el('pNote'); if (nt) nt.addEventListener('input', function () { p.note = this.value; syncProfileHeader(); save(); });
+  var dr = el('pDrain'); if (dr) dr.addEventListener('input', function () { p.drain = +this.value; el('pDrainV').textContent = (+this.value).toFixed(2); save(); recompute(); });
+  Array.prototype.forEach.call(el('editorBody').querySelectorAll('[data-skill]'), function (inp) {
+    inp.addEventListener('input', function () {
+      p.skills = p.skills || E.defaultSkills();
+      p.skills[this.dataset.skill] = (+this.value) / 100;
+      var v = document.querySelector('[data-skillv="' + this.dataset.skill + '"]');
+      if (v) v.textContent = this.value;
+      save(); recompute();
+    });
+  });
+  return true;
+}
+
+function zonePickerHTML(p, key, cls) {
+  var arr = p[key] || [];
+  return '<div class="zone-pick">' + E.OP_ZONES.map(function (z) {
+    var on = arr.indexOf(z) >= 0 ? ' ' + cls : '';
+    var attr = key === 'customWeak' ? 'data-zone-w' : 'data-zone-s';
+    return '<button class="mini' + on + '" ' + attr + '="' + z + '">' + esc(E.ZONE_META[z].label.replace('对方', '')) + '</button>';
+  }).join('') + '</div>';
+}
+
+function saveProfile() { toast('档案已自动保存'); closeDrawer(); }
+
+/* ---------------------------------------------------------------- 导入导出 */
+function exportData() {
+  var data = JSON.stringify({
+    app: '羽毛球单打战术助手', version: E.version, exportedAt: new Date().toISOString(),
+    me: state.me, opponents: state.opponents, weights: state.weights
+  }, null, 2);
+  el('importText').value = data;
+  try {
+    var blob = new Blob([data], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '羽毛球战术档案.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast('已导出 JSON（也粘贴在下方文本框，可直接复制）');
+  } catch (e) {
+    toast('浏览器不允许下载，JSON 已放在文本框里，请手动复制');
+  }
+  el('dataFold').open = true;
+}
+function importText(txt) {
+  if (!txt || !txt.trim()) { toast('请粘贴或选择 JSON 文件'); return; }
+  try {
+    var d = JSON.parse(txt);
+    if (!d.opponents || !d.opponents.length) throw new Error('缺少 opponents 字段');
+    if (d.me) state.me = Object.assign(E.defaultMe(), d.me);
+    state.opponents = d.opponents;
+    state.oppId = state.opponents[0].id;
+    if (d.weights) state.weights = Object.assign({}, E.DEFAULT_WEIGHTS, d.weights);
+    state.chosen = {};
+    renderAll(); toast('已导入 ' + state.opponents.length + ' 个对手档案');
+  } catch (e) { toast('导入失败：' + e.message); }
+}
+
+/* ---------------------------------------------------------------- 示例局面 */
+function loadDemo() {
+  state.inp = Object.assign(defaultInp(), { myStamina: 75, oppStamina: 30 });
+  state.chosen = {}; state.gapPeek = null; state.activeMarker = 'landZone';
+  renderInputs(); recompute();
+  toast('示例：对方高远到我正手后场底角，体力剩 30%。把红点拖到网前试试空当怎么变');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------------------------------------------------------------- 引擎自检 */
+/* 不依赖 Node 或任何构建工具：改完引擎点一下就能确认几何逻辑没被改坏。
+   守的是「静默失效」类问题——数值反了、NaN 渗进来了、拖动其实没生效，
+   这些在界面上都看不出来，但结果会全线错。 */
+function runSelfTest() {
+  var results = [];
+  function ok(cond, name, detail) { results.push({ pass: !!cond, name: name, detail: detail }); }
+
+  var opp = E.sampleOpponents()[2];                    // 高大覆盖型 · 反手弱 · 转身慢
+  var base = {
+    me: E.defaultMe(), opp: opp,
+    myPos: 'my_MC', landZone: 'my_BR', incoming: 'clear',
+    hitHeight: 'high', arrival: 'active', myStamina: 100, oppStamina: 100
+  };
+  function top(r) {
+    return r.candidates.slice(0, 3).map(function (c) { return c.shotId + '>' + c.targetZone; }).join(' ');
+  }
+
+  /* 1 站位真的参与打分 */
+  var rAuto = E.recommend(Object.assign({}, base));
+  var rNet = E.recommend(Object.assign({}, base, { oppPosMode: 'manual', oppPos: { x: 0, y: 7.4 } }));
+  ok(top(rAuto) !== top(rNet), '① 改对手站位会改变推荐排序', top(rAuto) + '  vs  ' + top(rNet));
+  ok(Math.abs(rAuto.oppStart.y - rNet.oppStart.y) > 2, '② 手动坐标确实覆盖了推断值',
+    rAuto.oppStart.y + ' → ' + rNet.oppStart.y);
+
+  /* 3 对手上网 → 后场进空当；对手贴底线 → 后场不算空当 */
+  ok(rNet.posInfo.open.some(function (z) { return z.zone.indexOf('op_B') === 0; }),
+    '③ 对手在网前时后场进空当榜', JSON.stringify(rNet.posInfo.open.map(function (z) { return z.label; })));
+  var rBase = E.recommend(Object.assign({}, base, { oppPosMode: 'manual', oppPos: { x: 0, y: 13.0 } }));
+  ok(!rBase.posInfo.open.some(function (z) { return z.zone.indexOf('op_B') === 0; }),
+    '④ 对手贴底线时后场不该被判为空当', JSON.stringify(rBase.posInfo.open.map(function (z) { return z.label; })));
+
+  /* 5 无 NaN */
+  var nan = null;
+  [6.75, 8.9, 10.05, 12.6, 13.35].some(function (y) {
+    if (nan) return true;
+    [-2.5, -0.6, 0, 0.6, 2.5].some(function (x) {
+      var s = JSON.stringify(E.recommend(Object.assign({}, base, {
+        oppPosMode: 'manual', oppPos: { x: x, y: y }
+      })));
+      if (/NaN|Infinity/.test(s)) { nan = 'x=' + x + ' y=' + y; return true; }
+      return false;
+    });
+    return !!nan;
+  });
+  ok(!nan, '⑤ 25 个合法站位组合扫描无 NaN/Infinity', nan);
+
+  /* 6 越界夹回 + 脏数据退回 */
+  var rOut = E.recommend(Object.assign({}, base, { oppPosMode: 'manual', oppPos: { x: 9, y: 1 } }));
+  ok(rOut.oppStart.x === 2.59 && rOut.oppStart.y === 6.7, '⑥ 越界站位被夹回对方半场',
+    JSON.stringify(rOut.oppStart));
+  var rJunk = E.recommend(Object.assign({}, base, { oppPosMode: 'manual', oppPos: { x: 'a', y: null } }));
+  ok(isFinite(rJunk.oppStart.y) && rJunk.oppStart.y > 6.7, '⑦ 坏坐标退回按来球推断而不产生 NaN',
+    JSON.stringify(rJunk.oppStart));
+
+  /* 8 身后球比同距离的身前球更难接（均衡体型，排除臂展与深区惩罚的干扰） */
+  var plain = Object.assign({}, opp, { body: 'average', traits: [] });
+  var mid = { oppStart: { x: 0, y: 10.05 }, oppSpeed: 1.0, zProf: E.opponentZonesProfile(plain) };
+  var front = E.reachDetail(mid, plain, 'op_FC', {});
+  var behind = E.reachDetail(mid, plain, 'op_BC', {});
+  ok(front.behind === false && behind.behind === true && behind.diff > front.diff * 1.25,
+    '⑧ 身后球代价方向正确（同距离更难接）',
+    'front ' + front.diff + ' vs behind ' + behind.diff);
+
+  /* 触及半径随体力衰减 */
+  var c100 = E.recommend(Object.assign({}, base, { oppStamina: 100 })).posInfo.coverRadius;
+  var c20 = E.recommend(Object.assign({}, base, { oppStamina: 20 })).posInfo.coverRadius;
+  ok(c20 < c100, '⑨ 对手体力下降 → 舒适触及半径缩小', c100 + 'm → ' + c20 + 'm');
+
+  /* 「身后」的定义就是「比他更靠底线 ≥1 米」：在网前时中场+后场共 6 个区都是身后，
+     但网前 3 个区不该亮；贴住底线时一个都不该亮。上一版这里 9 个区全亮就是这个 bug。 */
+  var nbNet = rNet.posInfo.zones.filter(function (z) { return z.behind; }).length;
+  var frontOk = rNet.posInfo.zones.filter(function (z) { return z.zone.indexOf('op_F') === 0; })
+                                  .every(function (z) { return !z.behind; });
+  var nbBase = rBase.posInfo.zones.filter(function (z) { return z.behind; }).length;
+  ok(frontOk && nbNet === 6 && nbBase === 0,
+    '⑩ 身后标记只标「比他更靠底线」的区',
+    '网前站位 ' + nbNet + '/9 区（前场 3 区未标）· 底线站位 ' + nbBase + '/9 区');
+
+  /* 触及半径必须是物理上合理的量。旧公式用整个参考耗时算，得到 4.86 米、
+     「覆盖半场 214%」这种荒谬值，圈一画出来整个功能就没意义了。 */
+  ok(c100 >= 1 && c100 <= 4 && rNet.posInfo.insideZones >= 1 && rNet.posInfo.insideZones < 9,
+    '⑪ 舒适触及半径物理合理且没有吞掉整个半场',
+    c100 + 'm（应在 1~4m）· 网前站位圈内 ' + rNet.posInfo.insideZones + '/9 区');
+
+  /* 卡片自洽：榜首落点 = 两拍调动的起点，否则读者会看到两个不同的「最佳」 */
+  var pv = rNet.posInfo;
+  ok(!pv.swing || pv.swing.from.zone === pv.byValue[0].zone,
+    '⑫ 空当榜首与两拍调动起点一致',
+    (pv.byValue[0] ? pv.byValue[0].label : '—') + ' vs ' + (pv.swing ? pv.swing.from.label : '—'));
+
+  var pass = results.filter(function (r) { return r.pass; }).length;
+  return { pass: pass, fail: results.length - pass, results: results };
+}
+
+function renderSelfTest() {
+  var t = runSelfTest();
+  el('selfTestBody').innerHTML =
+    '<div class="st-sum" style="color:' + (t.fail ? 'var(--bad)' : 'var(--good)') + '">' +
+      (t.fail ? '✗ ' + t.fail + ' 项未通过' : '✓ ' + t.pass + ' 项全部通过') +
+      ' · 引擎 v' + E.version + '</div>' +
+    t.results.map(function (r) {
+      return '<div class="st-line ' + (r.pass ? 'st-ok' : 'st-bad') + '">' + esc(r.name) +
+        (r.pass || !r.detail ? '' : '<div class="st-detail">' + esc(String(r.detail)) + '</div>') + '</div>';
+    }).join('');
+  el('dataFold').open = true;
+  toast(t.fail ? '自检有 ' + t.fail + ' 项未通过' : '引擎自检 ' + t.pass + ' 项全部通过');
+}
+
+/* ---------------------------------------------------------------- toast */
+var toastTimer = null;
+function toast(msg) {
+  var t = el('toast');
+  t.textContent = msg; t.classList.add('on');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.classList.remove('on'); }, 2600);
+}
+
+/* ---------------------------------------------------------------- 启动 */
+function renderAll() {
+  renderHeader(); renderOppSelect(); renderInputs(); renderWeights(); recompute();
+}
+
+function boot() {
+  load();
+  bind();
+  el('drawerMask').addEventListener('click', closeDrawer);
+  var v = el('engVer'); if (v) v.textContent = E.version;
+  var b = el('builtAt');
+  if (b) {
+    var d = new Date(document.lastModified);
+    b.textContent = isFinite(d.getTime()) ? d.toLocaleString('zh-CN', { hour12: false }) : '未知';
+  }
+  renderAll();
+  el('bootMsg').style.display = 'none';
+  /* 打开 file:///.../xx.html#selftest 可直接跑自检，发布前验一次 */
+  if (location.hash === '#selftest') renderSelfTest();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+
+})();
+
+</script>
+</body>
+</html>
